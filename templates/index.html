@@ -6,7 +6,10 @@
 
     <title>TempControl | Monitoramento inteligente</title>
 
-    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
   </head>
 
   <body>
@@ -14,7 +17,7 @@
       <div class="container header-content">
         <a href="#inicio" class="logo">
           <img
-            src="./Pasta/ChatGPT Image 28 de ago. de 2026, 09_05_51.png"
+            src="{{ url_for('static', filename='img/TempControl_logo.png') }}"
             alt="TempControl"
           />
         </a>
@@ -340,7 +343,7 @@
             </p>
           </div>
 
-          <a href="mailto:contato@tempcontrol.com" class="button button-light">
+          <a href="{{ url_for('contato') }}" class="button button-light">
             Fale com nossa equipe →
           </a>
         </div>
@@ -351,7 +354,7 @@
       <div class="container footer-content">
         <div class="footer-brand">
           <img
-            src="./img/TempControl_logo.png"
+            src="{{ url_for('static', filename='img/TempControl_logo.png') }}"
             alt="TempControl"
           />
 

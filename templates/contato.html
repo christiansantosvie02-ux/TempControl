@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Contato | TempControl</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <main class="contato-container">
+      <section class="contato-card">
+        <h1>Entre em contato</h1>
+
+        <p>Preencha o formulário abaixo e nossa equipe entrará em contato.</p>
+
+        {% if sucesso %}
+        <div class="mensagem sucesso">Mensagem enviada com sucesso!</div>
+        {% endif %}
+
+        {% if erro %}
+        <div class="mensagem erro">{{ erro }}</div>
+        {% endif %}
+
+        <form action="{{ url_for('contato') }}" method="POST" autocomplete="on">
+
+          <div class="campo">
+            <label for="nome"> Nome * </label>
+
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              value="{{ form.nome }}"
+              maxlength="120"
+              required
+              autocomplete="name"
+            />
+          </div>
+
+          <div class="campo">
+            <label for="email"> E-mail * </label>
+
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value="{{ form.email }}"
+              maxlength="150"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="campo">
+            <label for="telefone"> Telefone </label>
+
+            <input
+              type="tel"
+              id="telefone"
+              name="telefone"
+              value="{{ form.telefone }}"
+              maxlength="30"
+              autocomplete="tel"
+            />
+          </div>
+
+          <div class="campo">
+            <label for="empresa"> Empresa </label>
+
+            <input
+              type="text"
+              id="empresa"
+              name="empresa"
+              value="{{ form.empresa }}"
+              maxlength="150"
+              autocomplete="organization"
+            />
+          </div>
+
+          <div class="campo">
+            <label for="mensagem"> Mensagem * </label>
+
+            <textarea
+              id="mensagem"
+              name="mensagem"
+              maxlength="2000"
+              rows="7"
+              required
+            >
+{{ form.mensagem }}</textarea
+            >
+          </div>
+
+          <button type="submit">Enviar mensagem</button>
+        </form>
+
+        <p class="obrigatorio">* Campos obrigatórios</p>
+      </section>
+    </main>
+  </body>
+</html>
