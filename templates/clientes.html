@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clientes | TempControl</title>
+  <meta name="description" content="Conheça empresas fictícias de diferentes segmentos alimentícios apresentadas no projeto TempControl.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='clientes.css') }}">
+</head>
+<body class="clientes-page">
+  <header class="clientes-header"><div class="clientes-header-inner">
+    <a class="clientes-logo" href="{{ url_for('inicio') }}"><img src="{{ url_for('static', filename='img/TempControl_logo.png') }}" alt="TempControl"></a>
+    <nav aria-label="Navegação principal"><a href="{{ url_for('inicio') }}">Início</a><a href="{{ url_for('inicio') }}#solucao">Solução</a><a href="{{ url_for('clientes') }}" aria-current="page">Clientes</a><a href="{{ url_for('inicio') }}#beneficios">Benefícios</a><a href="{{ url_for('contato') }}">Contato</a></nav>
+    <a class="header-cta" href="{{ url_for('contato') }}">Fale conosco <span>↗</span></a>
+  </div></header>
+  <main>
+    <section class="clientes-hero"><div class="clientes-wrap hero-inner"><div class="hero-copy"><p class="eyebrow">SEGMENTOS QUE EXIGEM CUIDADO</p><h1>O cuidado com a temperatura faz parte de <span>cada etapa.</span></h1><p>Veja uma seleção de empresas fictícias cadastradas na base de demonstração do TempControl, representando diferentes áreas do setor de alimentos.</p><div class="hero-meta"><span class="meta-dot"></span> <strong>50 empresas em destaque</strong><span class="meta-divider">/</span><span>de uma base com 100 registros</span></div></div><div class="hero-side"><div class="hero-side-mark">°C</div><p>Monitoramento pensado para apoiar a conservação e o acompanhamento dos alimentos.</p><span class="side-line"></span></div></div></section>
+    <section class="clientes-listagem"><div class="clientes-wrap">
+      <div class="section-heading"><div><p class="eyebrow">NOSSA BASE DE DEMONSTRAÇÃO</p><h2>Empresas por segmento</h2></div><p>As descrições são resumidas a partir do nome e do segmento indicado no banco. Não representam declarações oficiais das empresas.</p></div>
+      {% if erro_clientes %}<div class="estado erro" role="alert">{{ erro_clientes }}</div>{% endif %}
+      {% if empresas %}<div class="clientes-grid">
+        {% for empresa in empresas %}
+        <article class="cliente-card"><div class="cliente-imagem"><img src="{{ url_for('static', filename='img/' ~ empresa.imagem) }}" alt="Imagem ilustrativa de {{ empresa.nome }}" loading="lazy" onerror="this.onerror=null;this.src='{{ url_for('static', filename='img/cliente-generico.svg') }}'"><span class="cliente-numero">{{ '%02d'|format(loop.index) }}</span></div><div class="cliente-conteudo"><span class="cliente-tag">{{ empresa.descricao.split('segmento de ')[1].split(',')[0] if 'segmento de ' in empresa.descricao else 'Setor alimentício' }}</span><h3>{{ empresa.nome }}</h3><p>{{ empresa.descricao|replace('Empresa fictícia do segmento de ', 'Segmento: ')|replace('Empresa fictícia do segmento ', 'Segmento ') }}</p></div></article>
+        {% endfor %}
+      </div>{% elif not erro_clientes %}<div class="estado"><h3>Nenhuma empresa cadastrada</h3><p>Não encontramos registros na tabela de empresas.</p></div>{% endif %}
+      <p class="nota-base">Conteúdo de demonstração: os nomes e as descrições desta página pertencem à base fictícia do projeto.</p>
+    </div></section>
+    <section class="clientes-cta"><div class="clientes-wrap cta-inner"><div><p class="eyebrow">TEMPCONTROL</p><h2>Quer conhecer melhor a solução?</h2><p>Entre em contato para conversar sobre monitoramento de temperatura no seu processo.</p></div><a href="{{ url_for('contato') }}">Fale com a equipe <span>→</span></a></div></section>
+  </main>
+  <footer class="clientes-footer"><div class="clientes-wrap"><a href="{{ url_for('inicio') }}">TempControl</a><span>© 2026 · Projeto de monitoramento de alimentos</span><a href="{{ url_for('consultar') }}">Acessar monitoramento ↗</a></div></footer>
+</body></html>

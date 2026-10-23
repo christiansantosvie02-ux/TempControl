@@ -1,122 +1,52 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contato | TempControl</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='contato.css') }}">
+</head>
+<body class="contato-page">
+  <header class="contato-header">
+    <a class="contato-marca" href="{{ url_for('inicio') }}" aria-label="TempControl — início">
+      <img src="{{ url_for('static', filename='img/TempControl_logo.png') }}" alt="TempControl">
+    </a>
+    <nav aria-label="Navegação principal">
+      <a href="{{ url_for('inicio') }}">Início</a>
+      <a href="{{ url_for('clientes') }}">Clientes</a>
+      <a href="{{ url_for('consultar') }}">Monitoramento</a>
+    </nav>
+  </header>
 
-    <title>Contato | TempControl</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='contato.css') }}"
-    />
-  </head>
-
-  <body>
-    <main class="contato-container">
-      <div class="contato-conteudo">
-        <nav class="navegacao-paginas" aria-label="Navegação entre páginas">
-          <a class="botao-navegacao" href="{{ url_for('inicio') }}"
-            >← Voltar ao início</a
-          >
-          <a class="botao-navegacao" href="{{ url_for('consultar') }}"
-            >Ir para Monitoramento →</a
-          >
-        </nav>
-
-        <section class="contato-card">
-          <h1>Entre em contato</h1>
-
-          <p>Preencha o formulário abaixo e nossa equipe entrará em contato.</p>
-
-          {% if sucesso %}
-          <div class="mensagem sucesso">Mensagem enviada com sucesso!</div>
-          {% endif %} {% if erro %}
-          <div class="mensagem erro">{{ erro }}</div>
-          {% endif %}
-
-          <form
-            action="{{ url_for('contato') }}"
-            method="POST"
-            autocomplete="on"
-          >
-            <div class="campo">
-              <label for="nome"> Nome * </label>
-
-              <input
-                type="text"
-                id="nome"
-                name="nome"
-                value="{{ form.nome }}"
-                maxlength="120"
-                required
-                autocomplete="name"
-              />
-            </div>
-
-            <div class="campo">
-              <label for="email"> E-mail * </label>
-
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value="{{ form.email }}"
-                maxlength="150"
-                required
-                autocomplete="email"
-              />
-            </div>
-
-            <div class="campo">
-              <label for="telefone"> Telefone </label>
-
-              <input
-                type="tel"
-                id="telefone"
-                name="telefone"
-                value="{{ form.telefone }}"
-                maxlength="30"
-                autocomplete="tel"
-              />
-            </div>
-
-            <div class="campo">
-              <label for="empresa"> Empresa </label>
-
-              <input
-                type="text"
-                id="empresa"
-                name="empresa"
-                value="{{ form.empresa }}"
-                maxlength="150"
-                autocomplete="organization"
-              />
-            </div>
-
-            <div class="campo">
-              <label for="mensagem"> Mensagem * </label>
-
-              <textarea
-                id="mensagem"
-                name="mensagem"
-                maxlength="2000"
-                rows="7"
-                required
-              >
-{{ form.mensagem }}</textarea
-              >
-            </div>
-
-            <button type="submit">Enviar mensagem</button>
-          </form>
-
-          <p class="obrigatorio">* Campos obrigatórios</p>
-        </section>
+  <main class="contato-main">
+    <section class="contato-intro">
+      <span class="contato-kicker">VAMOS CONVERSAR</span>
+      <h1>Boas decisões<br><span>começam com uma conversa.</span></h1>
+      <p>Conte um pouco sobre sua operação. Estamos aqui para ajudar você a entender como o monitoramento de temperatura pode apoiar a conservação dos alimentos.</p>
+      <div class="contato-nota">
+        <span class="nota-sinal" aria-hidden="true">↗</span>
+        <div><strong>Fale com a TempControl</strong><small>Envie sua mensagem pelo formulário ao lado.</small></div>
       </div>
-    </main>
-  </body>
+      <a class="voltar-link" href="{{ url_for('inicio') }}">← Voltar para o site</a>
+    </section>
+
+    <section class="contato-card" aria-labelledby="form-titulo">
+      <div class="form-topo"><span class="form-etiqueta">CONTATO</span><h2 id="form-titulo">Como podemos ajudar?</h2><p>Os campos com * são obrigatórios.</p></div>
+      {% if sucesso %}<div class="mensagem sucesso" role="status">Mensagem enviada com sucesso!</div>{% endif %}
+      {% if erro %}<div class="mensagem erro" role="alert">{{ erro }}</div>{% endif %}
+      <form action="{{ url_for('contato') }}" method="POST" autocomplete="on">
+        <div class="form-grid">
+          <div class="campo"><label for="nome">Nome *</label><input type="text" id="nome" name="nome" value="{{ form.nome }}" maxlength="120" required autocomplete="name" placeholder="Seu nome"></div>
+          <div class="campo"><label for="email">E-mail *</label><input type="email" id="email" name="email" value="{{ form.email }}" maxlength="150" required autocomplete="email" placeholder="voce@empresa.com"></div>
+          <div class="campo"><label for="telefone">Telefone</label><input type="tel" id="telefone" name="telefone" value="{{ form.telefone }}" maxlength="30" autocomplete="tel" placeholder="(00) 00000-0000"></div>
+          <div class="campo"><label for="empresa">Empresa</label><input type="text" id="empresa" name="empresa" value="{{ form.empresa }}" maxlength="150" autocomplete="organization" placeholder="Nome da empresa"></div>
+        </div>
+        <div class="campo"><label for="mensagem">Mensagem *</label><textarea id="mensagem" name="mensagem" maxlength="2000" rows="5" required placeholder="Conte brevemente o que você precisa.">{{ form.mensagem }}</textarea></div>
+        <button type="submit">Enviar mensagem <span aria-hidden="true">→</span></button>
+        <p class="privacidade">Usaremos as informações enviadas apenas para dar continuidade ao seu contato.</p>
+      </form>
+    </section>
+  </main>
+  <footer class="contato-footer"><span>© 2026 TempControl</span><span>Monitoramento inteligente de temperatura</span></footer>
+</body>
 </html>

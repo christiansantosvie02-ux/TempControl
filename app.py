@@ -1,6 +1,7 @@
 
 import os
 import re
+import unicodedata
 
 from dotenv import load_dotenv
 import mysql.connector
@@ -568,6 +569,46 @@ def consultar():
         )
 
     return render_template("consulta.html", **contexto)
+
+
+
+# ============================================================
+# PÁGINA DE CLIENTES
+# Exibe 50% das empresas cadastradas na tabela empresas.
+# ============================================================
+
+@app.route("/clientes")
+def clientes():
+    empresas = []
+    erro_clientes = None
+
+    try:
+        # O banco de dados fornecido contém 100 empresas fictícias.
+        # A página exibe metade delas, sem inventar informações oficiais.
+        empresas = buscar_registros(
+            "SELECT empresa_id, nome, descricao FROM empresas "
+            "ORDER BY empresa_id ASC LIMIT %s",
+            [50],
+        )
+        for empresa in empresas:
+            nome = empresa["nome"]
+            if nome == "Supermercado Sabor Real":
+                empresa["imagem"] = "supermercado-sabor-real.jpg"
+            elif nome == "Laticínios Pão Dourado":
+                empresa["imagem"] = "laticinios-pao-dourado.webp"
+            else:
+                nome_ascii = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode("ascii").lower()
+                empresa["imagem"] = re.sub(r"[^a-z0-9]+", "-", nome_ascii).strip("-") + ".svg"
+    except mysql.connector.Error as e:
+        print("ERRO DO MYSQL NA PÁGINA DE CLIENTES:", e)
+        erro_clientes = (
+            "Não foi possível carregar as empresas. Confirme se o arquivo "
+            "TempControl_empresas_descricoes.sql foi importado no banco tempcontrol."
+        )
+
+    return render_template(
+        "clientes.html", empresas=empresas, erro_clientes=erro_clientes
+    )
 
 
 # ============================================================
