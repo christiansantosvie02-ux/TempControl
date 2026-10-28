@@ -1,328 +1,295 @@
-<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% extends "base.html" %}
 
-    <title>Monitoramento | TempControl</title>
+{% block title %}Monitoramento | TempControl{% endblock %}
 
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='consulta.css') }}"
-    />
-  </head>
+{% block css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='consulta.css') }}">
+{% endblock %}
 
-  <body>
-    <header class="cabecalho">
-      <div class="container cabecalho-conteudo">
-        <a class="marca" href="{{ url_for('inicio') }}">
-          <img
-            src="{{ url_for('static', filename='img/TempControl_logo.png') }}"
-            alt="TempControl"
-          />
-        </a>
+{% block main_class %}container pagina-interna{% endblock %}
 
-        <nav class="navegacao" aria-label="Navegação principal">
-          <a href="{{ url_for('inicio') }}">Início</a>
-          <a href="{{ url_for('contato') }}">Contato</a>
-          <a href="{{ url_for('consultar') }}" aria-current="page">
-            Monitoramento
-          </a>
-        </nav>
-      </div>
-    </header>
+{% block content %}
+<!-- TÍTULO -->
+<section class="introducao-consulta">
+  <p class="eyebrow">TEMPCONTROL</p>
+  <h1>Monitoramento de temperatura</h1>
+  <p class="introducao">
+    Consulte as empresas e os equipamentos cadastrados, acompanhe as
+    temperaturas médias e visualize as últimas leituras registradas pelo
+    sistema.
+  </p>
+</section>
 
-    <main class="container pagina-interna">
-      <nav class="navegacao-paginas" aria-label="Navegação entre páginas">
-        <a class="botao-navegacao" href="{{ url_for('inicio') }}">
-          ← Voltar ao início
-        </a>
+<!-- MENSAGEM DE ERRO -->
+{% if erro %}
+<div class="alert alert-erro alert-topo" role="alert">{{ erro }}</div>
+{% endif %}
 
-        <a class="botao-navegacao" href="{{ url_for('contato') }}">
-          Ir para Contato →
-        </a>
-      </nav>
+<!-- RESUMO GERAL -->
+{% if resumo %}
+<section class="grade-resumo" aria-label="Resumo do monitoramento">
+  <article class="cartao-resumo">
+    <span class="rotulo-resumo">Empresas</span>
+    <strong>{{ resumo.total_empresas }}</strong>
+    <span>monitoradas</span>
+  </article>
 
-      <!-- TÍTULO -->
-      <section class="introducao-consulta">
-        <p class="etiqueta">TEMPCONTROL</p>
+  <article class="cartao-resumo">
+    <span class="rotulo-resumo">Equipamentos</span>
+    <strong>{{ resumo.total_equipamentos }}</strong>
+    <span>cadastrados</span>
+  </article>
 
-        <h1>Monitoramento de temperatura</h1>
+  <article class="cartao-resumo">
+    <span class="rotulo-resumo">Leituras</span>
+    <strong>{{ resumo.total_leituras }}</strong>
+    <span>registros</span>
+  </article>
 
-        <p class="introducao">
-          Consulte as empresas e os equipamentos cadastrados, acompanhe as
-          temperaturas médias e visualize as últimas leituras registradas pelo
-          sistema.
-        </p>
-      </section>
-
-      <!-- ERRO -->
-      {% if erro %}
-      <div class="aviso aviso-erro" role="alert">{{ erro }}</div>
+  <article class="cartao-resumo">
+    <span class="rotulo-resumo">Temperatura média</span>
+    <strong>
+      {% if resumo.temperatura_media is not none %}
+        {{ resumo.temperatura_media|temp }} °C
+      {% else %}
+        —
       {% endif %}
+    </strong>
+    <span>geral</span>
+  </article>
+</section>
+{% endif %}
 
-      <!-- RESUMO -->
-      {% if resumo %}
-      <section class="grade-resumo" aria-label="Resumo do monitoramento">
-        <article class="cartao-resumo">
-          <span class="rotulo-resumo">Empresas</span>
-          <strong>{{ resumo.total_empresas }}</strong>
-          <span>monitoradas</span>
-        </article>
+<!-- HORÁRIOS DAS EMPRESAS -->
+<section class="cartao secao-resultados" aria-labelledby="titulo-horarios">
+  <div class="cabecalho-secao">
+    <div>
+      <p class="eyebrow">DATA E HORA</p>
+      <h2 id="titulo-horarios">Horários das empresas</h2>
+    </div>
 
-        <article class="cartao-resumo">
-          <span class="rotulo-resumo">Equipamentos</span>
-          <strong>{{ resumo.total_equipamentos }}</strong>
-          <span>cadastrados</span>
-        </article>
+    <p class="ajuda">{{ horarios_empresas|length }} empresa(s) com leitura registrada.</p>
+  </div>
 
-        <article class="cartao-resumo">
-          <span class="rotulo-resumo">Leituras</span>
-          <strong>{{ resumo.total_leituras }}</strong>
-          <span>registros</span>
-        </article>
+  {% if horarios_empresas %}
+  <div class="tabela-rolagem">
+    <table>
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Equipamento</th>
+          <th>Temperatura</th>
+          <th>Data e horário</th>
+        </tr>
+      </thead>
 
-        <article class="cartao-resumo">
-          <span class="rotulo-resumo">Temperatura média</span>
-          <strong>
-            {% if resumo.temperatura_media is not none %}
-              {{ resumo.temperatura_media|temp }} °C
+      <tbody>
+        {% for item in horarios_empresas %}
+        <tr>
+          <td><strong>{{ item.empresa }}</strong></td>
+          <td>{{ item.equipamento }}</td>
+          <td>{{ item.temperatura|temp }} °C</td>
+          <td>{{ item.horario|data_br }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="sem-resultados">
+    <h3>Nenhum horário encontrado</h3>
+    <p>Não existem leituras disponíveis para as empresas.</p>
+  </div>
+  {% endif %}
+</section>
+
+<!-- FILTROS DE CONSULTA -->
+<section class="cartao" aria-labelledby="titulo-filtros">
+  <div class="cabecalho-secao">
+    <div>
+      <p class="eyebrow">CONSULTA</p>
+      <h2 id="titulo-filtros">Filtrar monitoramento</h2>
+    </div>
+  </div>
+
+  <form action="{{ url_for('consultar') }}" method="get">
+    <div class="grade-campos">
+      <div class="campo">
+        <label for="empresa">Empresa</label>
+        <input id="empresa" name="empresa" type="text" maxlength="160" placeholder="Ex.: Mercado Boa Vista" value="{{ filtros.get('empresa', '') }}">
+      </div>
+
+      <div class="campo">
+        <label for="equipamento">Equipamento</label>
+        <input id="equipamento" name="equipamento" type="text" maxlength="100" placeholder="Ex.: Freezer 01" value="{{ filtros.get('equipamento', '') }}">
+      </div>
+
+      <div class="campo">
+        <label for="tipo">Tipo</label>
+        <input id="tipo" name="tipo" type="text" maxlength="80" placeholder="Ex.: Freezer" value="{{ filtros.get('tipo', '') }}">
+      </div>
+    </div>
+
+    <div class="acoes-formulario">
+      <button class="btn btn-primary" type="submit">Consultar</button>
+      <a class="btn btn-secondary" href="{{ url_for('consultar') }}">Limpar filtros</a>
+    </div>
+  </form>
+</section>
+
+<!-- EMPRESAS ENCONTRADAS -->
+{% if buscou and empresas is not none %}
+<section class="secao-empresas" aria-labelledby="titulo-empresas">
+  <div class="cabecalho-secao">
+    <div>
+      <p class="eyebrow">EMPRESAS</p>
+      <h2 id="titulo-empresas">Empresas encontradas</h2>
+    </div>
+
+    <p class="ajuda">{{ empresas|length }} empresa(s) encontrada(s).</p>
+  </div>
+
+  {% if empresas %}
+  <div class="grade-empresas">
+    {% for empresa in empresas %}
+    <article class="empresa">
+      <h3>{{ empresa.empresa }}</h3>
+
+      <div class="media-empresa">
+        <span class="rotulo-resumo">Temperatura média</span>
+        <strong>
+          {% if empresa.temperatura_media is not none %}
+            {{ empresa.temperatura_media|temp }} °C
+          {% else %}
+            —
+          {% endif %}
+        </strong>
+      </div>
+
+      <div class="dados-empresa">
+        <span>{{ empresa.quantidade_equipamentos }} equipamento(s)</span>
+        <span>{{ empresa.quantidade_leituras }} leitura(s)</span>
+        <span>Conformidade: {{ empresa.conformidade|percentual }}%</span>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="sem-resultados">
+    <h3>Nenhuma empresa encontrada</h3>
+    <p>Não encontramos empresas com os filtros informados.</p>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+<!-- RESULTADOS DOS EQUIPAMENTOS -->
+{% if buscou and resultados is not none %}
+<section class="cartao secao-resultados" aria-labelledby="titulo-resultados">
+  <div class="cabecalho-secao">
+    <div>
+      <p class="eyebrow">RESULTADOS</p>
+      <h2 id="titulo-resultados">Equipamentos monitorados</h2>
+    </div>
+
+    <p class="ajuda">{{ resultados|length }} registro(s) encontrado(s).</p>
+  </div>
+
+  {% if resultados %}
+  <div class="tabela-rolagem">
+    <table class="tabela-ampla">
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Equipamento</th>
+          <th>Localização</th>
+          <th>Tipo</th>
+          <th>Leituras</th>
+          <th>Média</th>
+          <th>Última temperatura</th>
+          <th>Última leitura</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for item in resultados %}
+        {% set fora = (
+          item.ultima_temperatura is not none
+          and (
+            item.ultima_temperatura < item.temp_min
+            or item.ultima_temperatura > item.temp_max
+          )
+        ) %}
+
+        <tr>
+          <td>{{ item.empresa }}</td>
+          <td><strong>{{ item.equipamento }}</strong></td>
+          <td>{{ item.localizacao }}</td>
+          <td>{{ item.tipo }}</td>
+          <td>{{ item.quantidade_leituras }}</td>
+          <td>
+            {% if item.temperatura_media is not none %}
+              {{ item.temperatura_media|temp }} °C
             {% else %}
               —
             {% endif %}
-          </strong>
-          <span>geral</span>
-        </article>
-      </section>
-      {% endif %}
-
-      <!-- FILTROS -->
-      <section class="cartao">
-        <div class="cabecalho-secao">
-          <div>
-            <p class="etiqueta">CONSULTA</p>
-            <h2>Filtrar monitoramento</h2>
-          </div>
-        </div>
-
-        <form action="{{ url_for('consultar') }}" method="get">
-          <div class="grade-campos">
-            <div class="campo">
-              <label for="empresa">Empresa</label>
-              <input
-                id="empresa"
-                name="empresa"
-                type="text"
-                maxlength="160"
-                placeholder="Ex.: Mercado Boa Vista"
-                value="{{ filtros.get('empresa', '') }}"
-              />
-            </div>
-
-            <div class="campo">
-              <label for="equipamento">Equipamento</label>
-              <input
-                id="equipamento"
-                name="equipamento"
-                type="text"
-                maxlength="100"
-                placeholder="Ex.: Freezer 01"
-                value="{{ filtros.get('equipamento', '') }}"
-              />
-            </div>
-
-            <div class="campo">
-              <label for="tipo">Tipo</label>
-              <input
-                id="tipo"
-                name="tipo"
-                type="text"
-                maxlength="80"
-                placeholder="Ex.: Freezer"
-                value="{{ filtros.get('tipo', '') }}"
-              />
-            </div>
-          </div>
-
-          <div class="acoes-formulario">
-            <button class="botao" type="submit">Consultar</button>
-
-            <a class="botao-secundario" href="{{ url_for('consultar') }}">
-              Limpar filtros
-            </a>
-          </div>
-        </form>
-      </section>
-
-      <!-- EMPRESAS PESQUISADAS (com média das temperaturas) -->
-      {% if buscou and empresas is not none %}
-      <section class="secao-empresas" aria-labelledby="titulo-empresas">
-        <div class="cabecalho-secao">
-          <div>
-            <p class="etiqueta">EMPRESAS</p>
-            <h2 id="titulo-empresas">Empresas encontradas</h2>
-          </div>
-
-          <p class="ajuda">{{ empresas|length }} empresa(s) encontrada(s).</p>
-        </div>
-
-        {% if empresas %}
-        <div class="grade-empresas">
-          {% for empresa in empresas %}
-          <article class="empresa">
-            <h3>{{ empresa.empresa }}</h3>
-
-            <div class="media-empresa">
-              <span class="rotulo-resumo">Temperatura média</span>
-              <strong>
-                {% if empresa.temperatura_media is not none %}
-                  {{ empresa.temperatura_media|temp }} °C
-                {% else %}
-                  —
-                {% endif %}
-              </strong>
-            </div>
-
-            <div class="dados-empresa">
-              <span>{{ empresa.quantidade_equipamentos }} equipamento(s)</span>
-              <span>{{ empresa.quantidade_leituras }} leitura(s)</span>
-              <span>
-                Conformidade: {{ empresa.conformidade|percentual }}%
+          </td>
+          <td>
+            {% if item.ultima_temperatura is not none %}
+              <span class="status {{ 'status-fora' if fora else 'status-ok' }}">
+                {{ item.ultima_temperatura|temp }} °C
               </span>
-            </div>
-          </article>
-          {% endfor %}
-        </div>
-        {% else %}
-        <div class="sem-resultados">
-          <h3>Nenhuma empresa encontrada</h3>
-          <p>Não encontramos empresas com os filtros informados.</p>
-        </div>
-        {% endif %}
-      </section>
-      {% endif %}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td>{{ item.ultima_leitura|data_br }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="sem-resultados">
+    <h3>Nenhum equipamento encontrado</h3>
+    <p>Não encontramos equipamentos com os filtros informados.</p>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
 
-      <!-- RESULTADOS (equipamentos) -->
-      {% if buscou and resultados is not none %}
-      <section
-        class="cartao secao-resultados"
-        aria-labelledby="titulo-resultados"
-      >
-        <div class="cabecalho-secao">
-          <div>
-            <p class="etiqueta">RESULTADOS</p>
-            <h2 id="titulo-resultados">Equipamentos monitorados</h2>
-          </div>
+<!-- EMPRESAS RECOMENDADAS -->
+{% if recomendadas %}
+<section class="secao-empresas" aria-labelledby="titulo-recomendadas">
+  <div class="cabecalho-secao">
+    <div>
+      <p class="eyebrow">RECOMENDADAS</p>
+      <h2 id="titulo-recomendadas">Empresas recomendadas</h2>
+    </div>
 
-          <p class="ajuda">{{ resultados|length }} registro(s) encontrado(s).</p>
-        </div>
+    <p class="ajuda">Empresas com maior percentual de leituras dentro da faixa ideal.</p>
+  </div>
 
-        {% if resultados %}
-        <div class="tabela-rolagem">
-          <table>
-            <thead>
-              <tr>
-                <th>Empresa</th>
-                <th>Equipamento</th>
-                <th>Localização</th>
-                <th>Tipo</th>
-                <th>Leituras</th>
-                <th>Média</th>
-                <th>Última temperatura</th>
-                <th>Última leitura</th>
-              </tr>
-            </thead>
+  <div class="grade-empresas">
+    {% for empresa in recomendadas %}
+    <a class="empresa empresa-recomendada" href="{{ url_for('consultar', empresa=empresa.empresa) }}">
+      <span class="selo">★ Recomendada</span>
 
-            <tbody>
-              {% for item in resultados %}
-              {% set fora = item.ultima_temperatura is not none and (
-                   item.ultima_temperatura < item.temp_min or
-                   item.ultima_temperatura > item.temp_max) %}
-              <tr>
-                <td>{{ item.empresa }}</td>
-                <td><strong>{{ item.equipamento }}</strong></td>
-                <td>{{ item.localizacao }}</td>
-                <td>{{ item.tipo }}</td>
-                <td>{{ item.quantidade_leituras }}</td>
-                <td>
-                  {% if item.temperatura_media is not none %}
-                    {{ item.temperatura_media|temp }} °C
-                  {% else %}
-                    —
-                  {% endif %}
-                </td>
-                <td>
-                  {% if item.ultima_temperatura is not none %}
-                    <span class="status {{ 'status-fora' if fora else 'status-ok' }}">
-                      {{ item.ultima_temperatura|temp }} °C
-                    </span>
-                  {% else %}
-                    —
-                  {% endif %}
-                </td>
-                <td>{{ item.ultima_leitura|data_br }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% else %}
-        <div class="sem-resultados">
-          <h3>Nenhum equipamento encontrado</h3>
-          <p>Não encontramos equipamentos com os filtros informados.</p>
-        </div>
-        {% endif %}
-      </section>
-      {% endif %}
+      <h3>{{ empresa.empresa }}</h3>
 
-      <!-- EMPRESAS RECOMENDADAS -->
-      {% if recomendadas %}
-      <section class="secao-empresas" aria-labelledby="titulo-recomendadas">
-        <div class="cabecalho-secao">
-          <div>
-            <p class="etiqueta">RECOMENDADAS</p>
-            <h2 id="titulo-recomendadas">Empresas recomendadas</h2>
-          </div>
-
-          <p class="ajuda">
-            Empresas com maior percentual de leituras dentro da faixa ideal.
-          </p>
-        </div>
-
-        <div class="grade-empresas">
-          {% for empresa in recomendadas %}
-          <a
-            class="empresa empresa-recomendada"
-            href="{{ url_for('consultar', empresa=empresa.empresa) }}"
-          >
-            <span class="selo">★ Recomendada</span>
-
-            <h3>{{ empresa.empresa }}</h3>
-
-            <div class="media-empresa">
-              <span class="rotulo-resumo">Temperatura média</span>
-              <strong>{{ empresa.temperatura_media|temp }} °C</strong>
-            </div>
-
-            <div class="dados-empresa">
-              <span>{{ empresa.quantidade_equipamentos }} equipamento(s)</span>
-              <span>{{ empresa.quantidade_leituras }} leitura(s)</span>
-              <span>
-                Conformidade: {{ empresa.conformidade|percentual }}%
-              </span>
-            </div>
-          </a>
-          {% endfor %}
-        </div>
-      </section>
-      {% endif %}
-    </main>
-
-    <!-- RODAPÉ -->
-    <footer class="rodape">
-      <div class="container">
-        <p>© 2026 TempControl. Todos os direitos reservados.</p>
+      <div class="media-empresa">
+        <span class="rotulo-resumo">Temperatura média</span>
+        <strong>{{ empresa.temperatura_media|temp }} °C</strong>
       </div>
-    </footer>
-  </body>
-</html>
+
+      <div class="dados-empresa">
+        <span>{{ empresa.quantidade_equipamentos }} equipamento(s)</span>
+        <span>{{ empresa.quantidade_leituras }} leitura(s)</span>
+        <span>Conformidade: {{ empresa.conformidade|percentual }}%</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

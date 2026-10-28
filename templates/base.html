@@ -1,0 +1,108 @@
+{# Link para uma PÁGINA do site (marca a atual com aria-current). #}
+{% macro page_link(current, endpoint, label) -%}
+<a href="{{ url_for(endpoint) }}"{% if current == endpoint %} aria-current="page"{% endif %}>{{ label }}</a>
+{%- endmacro %}
+{# Link para uma SEÇÃO da página inicial (âncora por id). #}
+{% macro section_link(id, label) -%}
+<a href="{{ url_for('inicio') }}#{{ id }}">{{ label }}</a>
+{%- endmacro %}
+{% set current = request.endpoint %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TempControl | Monitoramento inteligente{% endblock %}</title>
+  <meta name="description" content="{% block description %}Monitoramento inteligente de temperatura para a indústria de alimentos.{% endblock %}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@600;700;800&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+  {% block css %}{% endblock %}
+  <script src="{{ url_for('static', filename='menu.js') }}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="site-header__logo" href="{{ url_for('inicio') }}" aria-label="TempControl — início">
+        <img src="{{ url_for('static', filename='img/TempControl_logo.png') }}" alt="TempControl">
+      </a>
+
+      {# Orientação pelo conteúdo da página inicial (ids das seções) #}
+      <nav class="site-nav" aria-label="Seções do site">
+        {{ section_link('desafio', 'Desafio') }}
+        {{ section_link('solucao', 'Solução') }}
+        {{ section_link('funcionamento', 'Como funciona') }}
+        {{ section_link('beneficios', 'Benefícios') }}
+        {{ section_link('aplicacoes', 'Aplicações') }}
+      </nav>
+
+      <div class="site-header__actions">
+        <a class="btn btn-primary" href="{{ url_for('contato') }}">Fale conosco</a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu-paginas" aria-label="Abrir menu">
+          <span class="menu-toggle__bars" aria-hidden="true"></span>
+          <span class="menu-toggle__label">Menu</span>
+        </button>
+      </div>
+    </div>
+
+    {# Menu hambúrguer: páginas do site (em telas pequenas inclui também as seções) #}
+    <div class="menu-panel" id="menu-paginas" hidden>
+      <div class="container menu-panel__inner">
+        <nav class="menu-group" aria-label="Páginas do site">
+          <p class="menu-group__title">Páginas</p>
+          <div class="menu-group__list">
+            {{ page_link(current, 'inicio', 'Início') }}
+            {{ page_link(current, 'clientes', 'Clientes') }}
+            {{ page_link(current, 'consultar', 'Monitoramento') }}
+            {{ page_link(current, 'contato', 'Contato') }}
+          </div>
+        </nav>
+
+        <nav class="menu-group menu-group--secoes" aria-label="Seções da página inicial">
+          <p class="menu-group__title">Na página inicial</p>
+          <div class="menu-group__list">
+            {{ section_link('desafio', 'Desafio') }}
+            {{ section_link('solucao', 'Solução') }}
+            {{ section_link('funcionamento', 'Como funciona') }}
+            {{ section_link('beneficios', 'Benefícios') }}
+            {{ section_link('aplicacoes', 'Aplicações') }}
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo" class="{% block main_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__top">
+      <div class="site-footer__brand">
+        <img src="{{ url_for('static', filename='img/TempControl_logo.png') }}" alt="TempControl">
+        <p>Monitoramento inteligente de temperatura para a indústria de alimentos.</p>
+      </div>
+
+      <nav class="site-footer__links" aria-label="Links do rodapé">
+        {{ page_link(current, 'inicio', 'Início') }}
+        {{ page_link(current, 'clientes', 'Clientes') }}
+        {{ page_link(current, 'consultar', 'Monitoramento') }}
+        {{ page_link(current, 'contato', 'Contato') }}
+        {{ section_link('desafio', 'Desafio') }}
+        {{ section_link('solucao', 'Solução') }}
+        {{ section_link('funcionamento', 'Como funciona') }}
+        {{ section_link('beneficios', 'Benefícios') }}
+        {{ section_link('aplicacoes', 'Aplicações') }}
+      </nav>
+    </div>
+
+    <div class="container site-footer__bottom">
+      <p>© 2026 TempControl. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+</body>
+</html>

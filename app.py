@@ -499,6 +499,46 @@ def buscar_recomendadas():
 
 
 # ============================================================
+# HORÁRIOS DAS 25 PRIMEIRAS EMPRESAS
+# ============================================================
+
+def buscar_horarios_empresas():
+    """Busca uma leitura aleatória para cada uma das 25 primeiras empresas."""
+
+    sql = """
+        WITH leituras_aleatorias AS (
+            SELECT
+                e.empresa,
+                e.nome AS equipamento,
+                l.temperatura,
+                l.registrada_em,
+                MIN(e.equipamento_id) OVER (
+                    PARTITION BY e.empresa
+                ) AS ordem_empresa,
+                ROW_NUMBER() OVER (
+                    PARTITION BY e.empresa
+                    ORDER BY RAND()
+                ) AS sorteio
+            FROM equipamentos AS e
+            INNER JOIN leituras_temperatura AS l
+                ON l.equipamento_id = e.equipamento_id
+            WHERE e.equipamento_id BETWEEN 1 AND 50
+        )
+        SELECT
+            empresa,
+            equipamento,
+            temperatura,
+            registrada_em AS horario
+        FROM leituras_aleatorias
+        WHERE sorteio = 1
+        ORDER BY ordem_empresa
+        LIMIT 25
+    """
+
+    return buscar_registros(sql)
+
+
+# ============================================================
 # ROTA DA TELA DE CONSULTA
 # ============================================================
 
@@ -527,12 +567,16 @@ def consultar():
         "empresas": None,
         "resultados": None,
         "recomendadas": [],
+        "horarios_empresas": [],
         "erro": None,
     }
 
     try:
         # Indicadores gerais
         contexto["resumo"] = buscar_resumo()
+
+        # Uma leitura aleatória para cada uma das 25 primeiras empresas
+        contexto["horarios_empresas"] = buscar_horarios_empresas()
 
         # Empresas recomendadas
         contexto["recomendadas"] = buscar_recomendadas()

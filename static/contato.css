@@ -1,2 +1,168 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
-:root{--green:#0b8f68;--deep:#075746;--ink:#103a32;--text:#5c716b;--muted:#8a9b94;--line:#dce8e2;--paper:#f5f8f5;--white:#fff}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--text);font-family:'DM Sans',Arial,sans-serif;line-height:1.6}.contato-header{height:82px;padding:0 max(5%,calc((100% - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:24px;background:#fff;border-bottom:1px solid var(--line)}.contato-marca img{width:142px;max-height:48px;object-fit:contain}.contato-header nav{display:flex;gap:28px}.contato-header nav a{font-size:13px;font-weight:700;color:#5d716b;text-decoration:none}.contato-header nav a:hover{color:var(--green)}.contato-main{width:min(1180px,90%);min-height:calc(100vh - 150px);margin:auto;padding:74px 0 80px;display:grid;grid-template-columns:.9fr 1.1fr;align-items:start;gap:clamp(40px,7vw,100px)}.contato-intro{padding-top:30px}.contato-kicker,.form-etiqueta{font-size:11px;letter-spacing:2px;font-weight:800;color:var(--green)}.contato-intro h1{margin:20px 0 22px;color:var(--ink);font-family:Manrope,Arial,sans-serif;font-size:clamp(38px,4.6vw,58px);line-height:1.08;letter-spacing:-2.5px}.contato-intro h1 span{color:var(--green)}.contato-intro>p{max-width:460px;font-size:15px;line-height:1.9}.contato-nota{display:flex;align-items:center;gap:15px;margin-top:34px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.nota-sinal{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#e0f1e9;color:var(--green);font-size:22px}.contato-nota strong,.contato-nota small{display:block}.contato-nota strong{color:var(--ink);font-size:13px}.contato-nota small{margin-top:3px;color:var(--muted);font-size:12px}.voltar-link{display:inline-block;margin-top:28px;color:var(--green);font-size:13px;font-weight:700;text-decoration:none}.voltar-link:hover{text-decoration:underline}.contato-card{padding:clamp(26px,4vw,44px);background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:0 18px 50px #103a3209}.form-topo{margin-bottom:28px}.form-topo h2{margin:8px 0 4px;color:var(--ink);font-family:Manrope,Arial,sans-serif;font-size:27px;letter-spacing:-.8px}.form-topo p{margin:0;color:var(--muted);font-size:12px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.campo{margin-bottom:19px}.campo label{display:block;margin-bottom:7px;color:var(--ink);font-size:12px;font-weight:700}.campo input,.campo textarea{width:100%;border:1px solid #d8e4de;border-radius:5px;background:#fbfdfb;color:var(--ink);font:inherit;font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s,background .2s}.campo input{height:48px;padding:0 13px}.campo textarea{min-height:128px;padding:13px;resize:vertical;line-height:1.6}.campo input::placeholder,.campo textarea::placeholder{color:#a1afa9}.campo input:focus,.campo textarea:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px #0b8f6818}.contato-card button{width:100%;min-height:51px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border:0;border-radius:5px;background:var(--green);color:#fff;font:700 13px 'DM Sans',Arial,sans-serif;cursor:pointer;transition:background .2s,transform .2s}.contato-card button span{font-size:20px}.contato-card button:hover{background:var(--deep);transform:translateY(-1px)}.privacidade{margin:14px 0 0;color:#899a93;font-size:10px;line-height:1.6}.mensagem{margin:0 0 22px;padding:12px 14px;border-radius:5px;font-size:13px}.mensagem.sucesso{border:1px solid #b9e3d4;background:#eff9f4;color:#076b50}.mensagem.erro{border:1px solid #f0c8c8;background:#fff5f5;color:#a33a3a}.contato-footer{min-height:68px;padding:18px 5%;display:flex;align-items:center;justify-content:space-between;gap:18px;background:#fff;border-top:1px solid var(--line);color:#87978f;font-size:11px}.contato-footer span:first-child{font-weight:800;color:var(--ink)}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #65bca0;outline-offset:3px}@media(max-width:800px){.contato-header{padding:0 5%}.contato-header nav{gap:15px}.contato-main{grid-template-columns:1fr;gap:32px;padding:42px 0 55px}.contato-intro{padding-top:0}.contato-intro h1{font-size:43px}.contato-nota{max-width:470px}.contato-card{max-width:680px;width:100%}}@media(max-width:520px){.contato-header{height:auto;min-height:76px;flex-wrap:wrap;padding:14px 5%;gap:12px}.contato-marca img{width:120px}.contato-header nav{width:100%;justify-content:space-between;order:2}.contato-header nav a{font-size:12px}.contato-main{width:90%;padding-top:34px}.contato-intro h1{font-size:37px;letter-spacing:-1.5px}.contato-intro>p{font-size:14px}.contato-card{padding:24px 19px}.form-grid{grid-template-columns:1fr;gap:0}.form-topo h2{font-size:24px}.contato-footer{align-items:flex-start;flex-direction:column;gap:4px}}
+/* ==========================================================================
+   TempControl — contato.css
+   Somente estilos específicos da página Contato. Campos de formulário,
+   botões e alertas ficam em base.css.
+   ========================================================================== */
+
+.contato-main {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: start;
+    gap: clamp(40px, 7vw, 100px);
+    padding-block: 74px 80px;
+}
+
+/* ---------- Introdução ---------- */
+.contato-intro {
+    padding-top: 30px;
+}
+
+.contato-intro h1 {
+    margin: 20px 0 22px;
+    font-size: clamp(38px, 4.6vw, 56px);
+    line-height: 1.08;
+    letter-spacing: -2.4px;
+}
+
+.contato-intro h1 span {
+    color: var(--green);
+}
+
+.contato-intro > p:not(.eyebrow) {
+    max-width: 460px;
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+.contato-nota {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 34px;
+    padding: 18px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.nota-sinal {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--green-light);
+    color: var(--green);
+    font-size: 22px;
+}
+
+.contato-nota strong,
+.contato-nota small {
+    display: block;
+}
+
+.contato-nota strong {
+    color: var(--dark);
+    font-size: 13px;
+}
+
+.contato-nota small {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* ---------- Formulário ---------- */
+.contato-card {
+    padding: clamp(26px, 4vw, 44px);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+}
+
+.form-topo {
+    margin-bottom: 28px;
+}
+
+.form-topo h2 {
+    margin: 8px 0 4px;
+    font-size: 27px;
+    letter-spacing: -0.8px;
+}
+
+.form-topo p:not(.eyebrow) {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+}
+
+.btn-enviar {
+    justify-content: space-between;
+    min-height: 52px;
+}
+
+.btn-enviar span {
+    font-size: 20px;
+}
+
+.privacidade {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 800px) {
+    .contato-main {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding-block: 42px 55px;
+    }
+
+    .contato-intro {
+        padding-top: 0;
+    }
+
+    .contato-intro h1 {
+        font-size: 42px;
+    }
+
+    .contato-nota {
+        max-width: 470px;
+    }
+
+    .contato-card {
+        width: 100%;
+        max-width: 680px;
+    }
+}
+
+@media (max-width: 520px) {
+    .contato-intro h1 {
+        font-size: 36px;
+        letter-spacing: -1.5px;
+    }
+
+    .contato-intro > p:not(.eyebrow) {
+        font-size: 14px;
+    }
+
+    .contato-card {
+        padding: 24px 19px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-topo h2 {
+        font-size: 24px;
+    }
+}
