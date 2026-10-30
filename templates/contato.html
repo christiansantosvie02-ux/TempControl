@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 
 {% block title %}Contato | TempControl{% endblock %}
+{% block description %}Fale com a equipe TempControl sobre monitoramento de temperatura para a sua operação.{% endblock %}
 
 {% block css %}
   <link rel="stylesheet" href="{{ url_for('static', filename='contato.css') }}">
@@ -10,7 +12,7 @@
 
 {% block content %}
 <section class="contato-intro">
-  <p class="eyebrow">VAMOS CONVERSAR</p>
+  <p class="eyebrow">Vamos conversar</p>
   <h1>Boas decisões<br><span>começam com uma conversa.</span></h1>
   <p>
     Conte um pouco sobre sua operação. Estamos aqui para ajudar você a
@@ -19,7 +21,7 @@
   </p>
 
   <div class="contato-nota">
-    <span class="nota-sinal" aria-hidden="true">↗</span>
+    <span class="icon-box">{{ icon("mail") }}</span>
     <div>
       <strong>Fale com a TempControl</strong>
       <small>Envie sua mensagem pelo formulário ao lado.</small>
@@ -29,17 +31,17 @@
 
 <section class="contato-card" aria-labelledby="form-titulo">
   <div class="form-topo">
-    <p class="eyebrow">CONTATO</p>
+    <p class="eyebrow">Contato</p>
     <h2 id="form-titulo">Como podemos ajudar?</h2>
     <p>Os campos com * são obrigatórios.</p>
   </div>
 
   {% if sucesso %}
-  <div class="alert alert-sucesso" role="status">Mensagem enviada com sucesso!</div>
+  <div class="alert alert-sucesso" role="status" id="msg" tabindex="-1">Mensagem enviada com sucesso!</div>
   {% endif %}
 
   {% if erro %}
-  <div class="alert alert-erro" role="alert">{{ erro }}</div>
+  <div class="alert alert-erro" role="alert" id="msg" tabindex="-1">{{ erro }}</div>
   {% endif %}
 
   <form action="{{ url_for('contato') }}" method="POST" autocomplete="on">
@@ -70,8 +72,8 @@
       <textarea id="mensagem" name="mensagem" maxlength="2000" rows="5" required placeholder="Conte brevemente o que você precisa.">{{ form.mensagem }}</textarea>
     </div>
 
-    <button class="btn btn-primary btn-block btn-enviar" type="submit">
-      Enviar mensagem <span aria-hidden="true">→</span>
+    <button class="btn btn-primary btn-block btn-enviar btn-lg" type="submit">
+      Enviar mensagem {{ icon("arrow-right") }}
     </button>
 
     <p class="privacidade">

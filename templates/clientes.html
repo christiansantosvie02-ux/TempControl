@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 
 {% block title %}Clientes | TempControl{% endblock %}
 {% block description %}Conheça empresas fictícias de diferentes segmentos alimentícios apresentadas no projeto TempControl.{% endblock %}
@@ -7,11 +8,15 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='clientes.css') }}">
 {% endblock %}
 
+{% block js %}
+  <script src="{{ url_for('static', filename='clientes.js') }}" defer></script>
+{% endblock %}
+
 {% block content %}
 <section class="clientes-hero">
   <div class="container hero-inner">
     <div class="hero-copy">
-      <p class="eyebrow">SEGMENTOS QUE EXIGEM CUIDADO</p>
+      <p class="eyebrow">Segmentos que exigem cuidado</p>
       <h1>O cuidado com a temperatura faz parte de <span>cada etapa.</span></h1>
       <p>
         Veja uma seleção de empresas fictícias cadastradas na base de
@@ -20,9 +25,9 @@
       </p>
 
       <div class="hero-meta">
-        <span class="meta-dot"></span>
+        <span class="meta-dot" aria-hidden="true"></span>
         <strong>50 empresas em destaque</strong>
-        <span class="meta-divider">/</span>
+        <span class="meta-divider" aria-hidden="true">/</span>
         <span>de uma base com 100 registros</span>
       </div>
     </div>
@@ -39,7 +44,7 @@
   <div class="container">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">NOSSA BASE DE DEMONSTRAÇÃO</p>
+        <p class="eyebrow">Nossa base de demonstração</p>
         <h2>Empresas por segmento</h2>
       </div>
       <p>
@@ -49,7 +54,12 @@
     </div>
 
     {% if erro_clientes %}
-    <div class="alert alert-erro" role="alert">{{ erro_clientes }}</div>
+    <div class="estado estado--erro" role="alert">
+      <h3>Não foi possível carregar as empresas agora</h3>
+      <p>Tente novamente em instantes. Se o problema continuar, fale com a nossa equipe.</p>
+      <a class="text-link" href="{{ url_for('contato') }}">Falar com a equipe {{ icon("arrow-right") }}</a>
+      {% if config.DEBUG %}<small>Detalhe técnico (somente em modo debug): {{ erro_clientes }}</small>{% endif %}
+    </div>
     {% endif %}
 
     {% if empresas %}
@@ -57,12 +67,18 @@
       {% for empresa in empresas %}
       <article class="cliente-card">
         <div class="cliente-imagem">
-          <img
-            src="{{ url_for('static', filename='img/' ~ empresa.imagem) }}"
-            alt="Imagem ilustrativa de {{ empresa.nome }}"
-            loading="lazy"
-            data-fallback="{{ url_for('static', filename='img/cliente-generico.svg') }}">
-          <span class="cliente-numero">{{ '%02d'|format(loop.index) }}</span>
+          <button type="button" class="cliente-zoom" aria-haspopup="dialog"
+                  aria-label="Ampliar imagem de {{ empresa.nome }}">
+            <img
+              src="{{ url_for('static', filename='img/' ~ empresa.imagem) }}"
+              alt="Imagem ilustrativa de {{ empresa.nome }}"
+              width="960" height="540"
+              {% if loop.index > 3 %}loading="lazy"{% endif %}
+              data-nome="{{ empresa.nome }}"
+              data-fallback="{{ url_for('static', filename='img/cliente-generico.svg') }}">
+            <span class="cliente-zoom__icon" aria-hidden="true">{{ icon("search") }}</span>
+          </button>
+          <span class="cliente-numero" aria-hidden="true">{{ '%02d'|format(loop.index) }}</span>
         </div>
 
         <div class="cliente-conteudo">
@@ -75,10 +91,16 @@
       </article>
       {% endfor %}
     </div>
+
+    {# Paginação incremental: clientes.js mostra 6 e libera +3 por clique #}
+    <div class="clientes-mais" data-inicial="6" data-passo="3" hidden>
+      <p class="clientes-mais__status" role="status" aria-live="polite"></p>
+      <button type="button" class="btn btn-secondary btn-lg clientes-mais__btn">Ver mais clientes</button>
+    </div>
     {% elif not erro_clientes %}
     <div class="estado">
       <h3>Nenhuma empresa cadastrada</h3>
-      <p>Não encontramos registros na tabela de empresas.</p>
+      <p>Ainda não há empresas na base de demonstração.</p>
     </div>
     {% endif %}
 
@@ -92,26 +114,21 @@
 <section class="clientes-cta">
   <div class="container cta-inner">
     <div>
-      <p class="eyebrow">TEMPCONTROL</p>
+      <p class="eyebrow">TempControl</p>
       <h2>Quer conhecer melhor a solução?</h2>
       <p>Entre em contato para conversar sobre monitoramento de temperatura no seu processo.</p>
     </div>
 
-    <a class="btn btn-light" href="{{ url_for('contato') }}">Fale com a equipe →</a>
+    <a class="btn btn-light btn-lg" href="{{ url_for('contato') }}">Fale com a equipe {{ icon("arrow-right") }}</a>
   </div>
 </section>
 
-<script>
-  /* Se a imagem da empresa não carregar, usa a imagem genérica. */
-  document.querySelectorAll(".cliente-imagem img[data-fallback]").forEach(function (img) {
-    function usarFallback() {
-      img.src = img.dataset.fallback;
-    }
-    if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) {
-      usarFallback();
-    } else {
-      img.addEventListener("error", usarFallback, { once: true });
-    }
-  });
-</script>
+{# Pop-up de imagem ampliada (aberto por clientes.js) #}
+<dialog class="lightbox" id="lightbox" aria-label="Imagem ampliada">
+  <figure class="lightbox__figure">
+    <button type="button" class="lightbox__close" aria-label="Fechar imagem">&times;</button>
+    <img class="lightbox__img" src="" alt="">
+    <figcaption class="lightbox__caption"></figcaption>
+  </figure>
+</dialog>
 {% endblock %}

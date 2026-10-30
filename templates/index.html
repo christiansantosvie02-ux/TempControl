@@ -1,16 +1,21 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 
-{% block title %}TempControl | Monitoramento inteligente{% endblock %}
+{% block title %}TempControl | Monitoramento inteligente de temperatura{% endblock %}
 
 {% block css %}
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
+
+{% block js %}
+  <script src="{{ url_for('static', filename='mock-chart.js') }}" defer></script>
 {% endblock %}
 
 {% block content %}
 <section class="hero" id="inicio">
   <div class="container hero-content">
     <div class="hero-text">
-      <p class="eyebrow">MONITORAMENTO INTELIGENTE</p>
+      <p class="pill"><span class="pill__dot" aria-hidden="true"></span>Monitoramento inteligente</p>
 
       <h1>
         Controle a temperatura.
@@ -18,63 +23,111 @@
       </h1>
 
       <p class="hero-description">
-        Monitore a temperatura dos alimentos em tempo real e tenha mais
-        segurança, controle e eficiência em todos os processos da sua
-        indústria.
+        Acompanhe a temperatura de câmaras, freezers e processos em tempo real,
+        receba alertas quando algo sair da faixa e mantenha o histórico das
+        medições para rastreabilidade.
       </p>
 
       <div class="hero-actions">
-        <a href="#solucao" class="btn btn-primary">Conheça a solução</a>
-        <a href="#funcionamento" class="text-link">Como funciona →</a>
+        <a href="{{ url_for('contato') }}" class="btn btn-primary btn-lg">Fale com nossa equipe {{ icon("arrow-right") }}</a>
+        <a href="{{ url_for('consultar') }}" class="btn btn-secondary btn-lg">Explorar o monitoramento</a>
       </div>
     </div>
 
     <div class="hero-visual">
-      <div class="temperature">
-        <div class="temperature-top">
-          <span>Temperatura atual</span>
-          <span class="online">● Online</span>
+      <div class="mock" role="img"
+           aria-label="Exemplo ilustrativo de painel: câmara fria a menos 4,2 graus Celsius, dentro da faixa ideal de menos 6 a menos 2 graus. Gráfico das últimas 12 leituras entre menos 4,7 e menos 3,4 graus.">
+        <div class="mock__top">
+          <div>
+            <p class="mock__label">Câmara fria 01</p>
+            <p class="mock__sub">Últimas 12 leituras</p>
+          </div>
+          <span class="mock__status"><span aria-hidden="true"></span>Dentro da faixa</span>
         </div>
 
-        <div class="temperature-value">- 4.2<span>°C</span></div>
+        <div class="mock__value">−4,2<span>°C</span></div>
 
-        <div class="temperature-line"></div>
+        <svg class="mock__chart" viewBox="0 36 370 100" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#0b8f68" stop-opacity="0.22"/>
+              <stop offset="1" stop-color="#0b8f68" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="50" width="370" height="60" fill="#0b8f68" fill-opacity="0.07"/>
+          <line x1="0" y1="50" x2="370" y2="50" stroke="#0b8f68" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+          <line x1="0" y1="110" x2="370" y2="110" stroke="#0b8f68" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+          <path class="mock__area" d="M20 87.5 L50 84.5 L80 90.5 L110 83 L140 78.5 L170 86 L200 81.5 L230 75.5 L260 71 L290 77 L320 80 L350 83 L350 132 L20 132 Z" fill="url(#area)"/>
+          <path class="mock__line" pathLength="1" d="M20 87.5 L50 84.5 L80 90.5 L110 83 L140 78.5 L170 86 L200 81.5 L230 75.5 L260 71 L290 77 L320 80 L350 83" fill="none" stroke="#087a58" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle class="mock__dot" cx="350" cy="83" r="5" fill="#fff" stroke="#087a58" stroke-width="2.5"/>
+        </svg>
 
-        <div class="temperature-bottom">
-          <span>Câmara fria</span>
-          <span>Dentro do limite</span>
+        <div class="mock__legend">
+          <span><i aria-hidden="true"></i>Faixa ideal: −6 a −2 °C</span>
         </div>
+
+        <dl class="mock__stats">
+          <div><dt>Mínima</dt><dd data-mock="min">−4,7 °C</dd></div>
+          <div><dt>Média</dt><dd data-mock="media">−4,1 °C</dd></div>
+          <div><dt>Máxima</dt><dd data-mock="max">−3,4 °C</dd></div>
+        </dl>
+
+        <p class="mock__note"><span class="tag">Exemplo</span> Dados ilustrativos</p>
       </div>
     </div>
   </div>
 </section>
 
 <section class="problem" id="desafio">
-  <div class="container narrow">
-    <p class="eyebrow">O DESAFIO</p>
-
-    <h2>Uma pequena variação de temperatura pode gerar grandes prejuízos.</h2>
-
-    <p class="section-description">
-      Falhas no controle de temperatura podem causar perda de produtos,
-      riscos à segurança alimentar e dificuldades para identificar quando
-      e onde ocorreu um problema.
-    </p>
-
-    <div class="problem-items">
-      <div class="problem-item"><span>01</span><p>Perda de produtos e matéria-prima</p></div>
-      <div class="problem-item"><span>02</span><p>Variações de temperatura não identificadas</p></div>
-      <div class="problem-item"><span>03</span><p>Riscos à segurança dos alimentos</p></div>
-      <div class="problem-item"><span>04</span><p>Dificuldade para rastrear ocorrências</p></div>
+  <div class="container split">
+    <div class="split__head reveal">
+      <p class="eyebrow">O desafio</p>
+      <h2>Uma pequena variação de temperatura pode gerar grandes prejuízos.</h2>
+      <p class="section-description">
+        Falhas no controle de temperatura podem causar perda de produtos,
+        riscos à segurança alimentar e dificuldades para identificar quando
+        e onde ocorreu um problema.
+      </p>
     </div>
+
+    <ul class="problem-items">
+      <li class="problem-item reveal" style="--d:.05s">
+        <span class="icon-box">{{ icon("box") }}</span>
+        <div>
+          <h3>Perda de produtos e matéria-prima</h3>
+          <p>Uma falha de refrigeração pode comprometer lotes inteiros antes de ser percebida.</p>
+        </div>
+      </li>
+      <li class="problem-item reveal" style="--d:.1s">
+        <span class="icon-box">{{ icon("activity") }}</span>
+        <div>
+          <h3>Variações de temperatura não identificadas</h3>
+          <p>Sem medição contínua, oscilações passam despercebidas entre uma checagem e outra.</p>
+        </div>
+      </li>
+      <li class="problem-item reveal" style="--d:.15s">
+        <span class="icon-box">{{ icon("shield") }}</span>
+        <div>
+          <h3>Riscos à segurança dos alimentos</h3>
+          <p>Temperaturas fora da faixa aumentam o risco de deterioração e de não conformidade.</p>
+        </div>
+      </li>
+      <li class="problem-item reveal" style="--d:.2s">
+        <span class="icon-box">{{ icon("search") }}</span>
+        <div>
+          <h3>Dificuldade para rastrear ocorrências</h3>
+          <p>Sem histórico, é difícil saber quando e onde o problema começou.</p>
+        </div>
+      </li>
+    </ul>
   </div>
 </section>
 
 <section class="solution" id="solucao">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal">
       <div>
-        <p class="eyebrow">A SOLUÇÃO</p>
+        <p class="eyebrow">A solução</p>
         <h2>Monitore. Detecte. <span>Aja.</span></h2>
       </div>
 
@@ -85,26 +138,26 @@
     </div>
 
     <div class="solution-grid">
-      <article class="solution-card">
-        <span class="number">01</span>
+      <article class="solution-card reveal">
+        <span class="icon-box">{{ icon("thermometer") }}</span>
         <h3>Monitoramento</h3>
         <p>Acompanhe continuamente a temperatura dos alimentos e equipamentos.</p>
       </article>
 
-      <article class="solution-card">
-        <span class="number">02</span>
+      <article class="solution-card reveal" style="--d:.06s">
+        <span class="icon-box">{{ icon("bell") }}</span>
         <h3>Alertas</h3>
         <p>Receba alertas quando os limites definidos forem ultrapassados.</p>
       </article>
 
-      <article class="solution-card">
-        <span class="number">03</span>
+      <article class="solution-card reveal" style="--d:.12s">
+        <span class="icon-box">{{ icon("history") }}</span>
         <h3>Histórico</h3>
         <p>Tenha acesso às medições anteriores para análise e rastreabilidade.</p>
       </article>
 
-      <article class="solution-card">
-        <span class="number">04</span>
+      <article class="solution-card reveal" style="--d:.18s">
+        <span class="icon-box">{{ icon("layout") }}</span>
         <h3>Controle</h3>
         <p>Centralize as informações para facilitar a tomada de decisões.</p>
       </article>
@@ -114,83 +167,79 @@
 
 <section class="process" id="funcionamento">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal">
       <div>
-        <p class="eyebrow">COMO FUNCIONA</p>
+        <p class="eyebrow">Como funciona</p>
         <h2>Tecnologia simples. <span>Resultados reais.</span></h2>
       </div>
+      <p>Do sensor à ação da equipe, cinco etapas conectadas em um único fluxo.</p>
     </div>
 
-    <div class="process-list">
-      <div class="process-item">
-        <span>01</span>
-        <div>
-          <h3>Sensores</h3>
-          <p>Sensores instalados em pontos estratégicos realizam as medições.</p>
-        </div>
-      </div>
-
-      <div class="process-item">
-        <span>02</span>
-        <div>
-          <h3>Coleta</h3>
-          <p>Os dados são coletados automaticamente pelo sistema.</p>
-        </div>
-      </div>
-
-      <div class="process-item">
-        <span>03</span>
-        <div>
-          <h3>Monitoramento</h3>
-          <p>As informações ficam disponíveis para acompanhamento.</p>
-        </div>
-      </div>
-
-      <div class="process-item">
-        <span>04</span>
-        <div>
-          <h3>Alerta</h3>
-          <p>O sistema identifica alterações fora dos limites estabelecidos.</p>
-        </div>
-      </div>
-
-      <div class="process-item">
-        <span>05</span>
-        <div>
-          <h3>Ação</h3>
-          <p>Sua equipe pode agir rapidamente para corrigir o problema.</p>
-        </div>
-      </div>
-    </div>
+    <ol class="flow">
+      <li class="flow-step reveal">
+        <span class="flow-step__node">{{ icon("sensor") }}</span>
+        <p class="flow-step__n">Etapa 1</p>
+        <h3>Sensores</h3>
+        <p>Sensores instalados em pontos estratégicos realizam as medições.</p>
+      </li>
+      <li class="flow-step reveal" style="--d:.07s">
+        <span class="flow-step__node">{{ icon("database") }}</span>
+        <p class="flow-step__n">Etapa 2</p>
+        <h3>Coleta</h3>
+        <p>Os dados são coletados automaticamente pelo sistema.</p>
+      </li>
+      <li class="flow-step reveal" style="--d:.14s">
+        <span class="flow-step__node">{{ icon("monitor") }}</span>
+        <p class="flow-step__n">Etapa 3</p>
+        <h3>Monitoramento</h3>
+        <p>As informações ficam disponíveis para acompanhamento.</p>
+      </li>
+      <li class="flow-step flow-step--accent reveal" style="--d:.21s">
+        <span class="flow-step__node">{{ icon("bell") }}</span>
+        <p class="flow-step__n">Etapa 4</p>
+        <h3>Alerta</h3>
+        <p>O sistema identifica alterações fora dos limites estabelecidos.</p>
+      </li>
+      <li class="flow-step flow-step--accent reveal" style="--d:.28s">
+        <span class="flow-step__node">{{ icon("check") }}</span>
+        <p class="flow-step__n">Etapa 5</p>
+        <h3>Ação</h3>
+        <p>Sua equipe pode agir rapidamente para corrigir o problema.</p>
+      </li>
+    </ol>
   </div>
 </section>
 
 <section class="benefits" id="beneficios">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal">
       <div>
-        <p class="eyebrow">BENEFÍCIOS</p>
+        <p class="eyebrow">Benefícios</p>
         <h2>Mais controle. <span>Menos preocupação.</span></h2>
       </div>
     </div>
 
     <div class="benefits-grid">
-      <article>
+      <article class="reveal">
+        <span class="icon-box">{{ icon("trend-down") }}</span>
         <h3>Redução de perdas</h3>
         <p>Identifique problemas antes que eles causem grandes prejuízos.</p>
       </article>
 
-      <article>
+      <article class="reveal" style="--d:.06s">
+        <span class="icon-box">{{ icon("zap") }}</span>
         <h3>Automação</h3>
         <p>Reduza verificações manuais e processos repetitivos.</p>
       </article>
 
-      <article>
+      <article class="reveal" style="--d:.12s">
+        <span class="icon-box">{{ icon("shield") }}</span>
         <h3>Segurança alimentar</h3>
         <p>Tenha maior controle sobre as condições de armazenamento e produção.</p>
       </article>
 
-      <article>
+      <article class="reveal" style="--d:.18s">
+        <span class="icon-box">{{ icon("file") }}</span>
         <h3>Rastreabilidade</h3>
         <p>Mantenha um histórico das medições para análise.</p>
       </article>
@@ -200,34 +249,59 @@
 
 <section class="applications" id="aplicacoes">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal">
       <div>
-        <p class="eyebrow">APLICAÇÕES</p>
+        <p class="eyebrow">Aplicações</p>
         <h2>Uma solução para <span>toda a operação.</span></h2>
       </div>
+      <a class="text-link" href="{{ url_for('consultar') }}">Ver o monitoramento {{ icon("arrow-right") }}</a>
     </div>
 
-    <div class="applications-list">
-      <div><span>01</span><h3>Câmaras frias</h3></div>
-      <div><span>02</span><h3>Freezers e refrigeradores</h3></div>
-      <div><span>03</span><h3>Processos de produção</h3></div>
-      <div><span>04</span><h3>Transporte refrigerado</h3></div>
+    <div class="applications-grid">
+      <article class="app-card reveal">
+        <span class="icon-box">{{ icon("snowflake") }}</span>
+        <h3>Câmaras frias</h3>
+        <p>Acompanhe ambientes de armazenamento refrigerado e congelado.</p>
+      </article>
+
+      <article class="app-card reveal" style="--d:.06s">
+        <span class="icon-box">{{ icon("fridge") }}</span>
+        <h3>Freezers e refrigeradores</h3>
+        <p>Monitore equipamentos de varejo, cozinhas e áreas de produção.</p>
+      </article>
+
+      <article class="app-card reveal" style="--d:.12s">
+        <span class="icon-box">{{ icon("factory") }}</span>
+        <h3>Processos de produção</h3>
+        <p>Registre as condições durante as etapas críticas do processo.</p>
+      </article>
+
+      <article class="app-card reveal" style="--d:.18s">
+        <span class="icon-box">{{ icon("truck") }}</span>
+        <h3>Transporte refrigerado</h3>
+        <p>Acompanhe as condições dos alimentos durante a movimentação.</p>
+      </article>
     </div>
   </div>
 </section>
 
 <section class="cta">
-  <div class="container cta-content">
-    <div>
-      <p class="eyebrow">TEMPCONTROL</p>
-      <h2>Tenha controle sobre cada grau.</h2>
-      <p>
-        Monitore seus processos, receba alertas e tome decisões antes que
-        pequenos problemas se transformem em grandes perdas.
-      </p>
-    </div>
+  <div class="container">
+    <div class="cta-card reveal">
+      <div>
+        <p class="eyebrow">TempControl</p>
+        <h2>Tenha controle sobre cada grau.</h2>
+        <p>
+          Monitore seus processos, receba alertas e tome decisões antes que
+          pequenos problemas se transformem em grandes perdas.
+        </p>
+      </div>
 
-    <a href="{{ url_for('contato') }}" class="btn btn-light">Fale com nossa equipe →</a>
+      <div class="cta-actions">
+        <a href="{{ url_for('contato') }}" class="btn btn-light btn-lg">Fale com nossa equipe {{ icon("arrow-right") }}</a>
+        <a href="{{ url_for('consultar') }}" class="btn btn-ghost-light btn-lg">Explorar o monitoramento</a>
+      </div>
+    </div>
   </div>
 </section>
 {% endblock %}

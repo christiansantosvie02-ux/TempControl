@@ -1,31 +1,78 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
+
+{# ---------- Macros reutilizáveis ---------- #}
+
+{# Temperatura formatada ou traço. #}
+{% macro temp_c(valor) -%}
+{%- if valor is not none %}{{ valor|temp }} °C{% else %}—{% endif -%}
+{%- endmacro %}
+
+{# Conteúdo do cartão de empresa (usado em "encontradas" e "recomendadas"). #}
+{% macro corpo_empresa(e) -%}
+<h3>{{ e.empresa }}</h3>
+
+<div class="media-empresa">
+  <span class="rotulo-resumo">Temperatura média</span>
+  <strong>{{ temp_c(e.temperatura_media) }}</strong>
+</div>
+
+<div class="dados-empresa">
+  <span>{{ e.quantidade_equipamentos }} equipamento(s)</span>
+  <span>{{ e.quantidade_leituras }} leitura(s)</span>
+  {% if e.conformidade is not none %}
+  <span>Conformidade: {{ e.conformidade|percentual }}%</span>
+  <div class="meter" aria-hidden="true"><span style="width: {{ e.conformidade|float }}%"></span></div>
+  {% else %}
+  <span>Conformidade: —</span>
+  {% endif %}
+</div>
+{%- endmacro %}
+
+{# Botão "Ver mais" + contador. Só aparece se houver mais itens que o passo. #}
+{% macro ver_mais(alvo, total, passo) -%}
+{% if total > passo %}
+<div class="ver-mais">
+  <p class="ver-mais__status" role="status">Mostrando {{ passo }} de {{ total }}</p>
+  <button class="btn btn-secondary" type="button" data-ver-mais="{{ alvo }}" aria-controls="{{ alvo }}">Ver mais</button>
+</div>
+{% endif %}
+{%- endmacro %}
 
 {% block title %}Monitoramento | TempControl{% endblock %}
+{% block description %}Consulte equipamentos, temperaturas médias e conformidade por empresa.{% endblock %}
 
 {% block css %}
   <link rel="stylesheet" href="{{ url_for('static', filename='consulta.css') }}">
 {% endblock %}
 
+{% block js %}
+  <script src="{{ url_for('static', filename='ver-mais.js') }}" defer></script>
+{% endblock %}
+
 {% block main_class %}container pagina-interna{% endblock %}
 
 {% block content %}
-<!-- TÍTULO -->
+{% set passo = 5 %}
+{% set tipos = ['Câmara Fria', 'Freezer', 'Freezer Industrial', 'Refrigerador', 'Refrigerador Industrial'] %}
+
+{# ---------- 1. Introdução ---------- #}
 <section class="introducao-consulta">
-  <p class="eyebrow">TEMPCONTROL</p>
   <h1>Monitoramento de temperatura</h1>
   <p class="introducao">
-    Consulte as empresas e os equipamentos cadastrados, acompanhe as
-    temperaturas médias e visualize as últimas leituras registradas pelo
-    sistema.
+    Consulte empresas e equipamentos, acompanhe as temperaturas médias e
+    veja as últimas leituras registradas pelo sistema.
   </p>
 </section>
 
-<!-- MENSAGEM DE ERRO -->
 {% if erro %}
-<div class="alert alert-erro alert-topo" role="alert">{{ erro }}</div>
+<div class="alert alert-erro alert-topo" role="alert">
+  Não foi possível carregar os dados agora. Tente novamente em instantes.
+  {% if config.DEBUG %}<small>Detalhe técnico (somente em modo debug): {{ erro }}</small>{% endif %}
+</div>
 {% endif %}
 
-<!-- RESUMO GERAL -->
+{# ---------- 2. Resumo ---------- #}
 {% if resumo %}
 <section class="grade-resumo" aria-label="Resumo do monitoramento">
   <article class="cartao-resumo">
@@ -48,53 +95,199 @@
 
   <article class="cartao-resumo">
     <span class="rotulo-resumo">Temperatura média</span>
-    <strong>
-      {% if resumo.temperatura_media is not none %}
-        {{ resumo.temperatura_media|temp }} °C
-      {% else %}
-        —
-      {% endif %}
-    </strong>
+    <strong>{{ temp_c(resumo.temperatura_media) }}</strong>
     <span>geral</span>
   </article>
 </section>
 {% endif %}
 
-<!-- HORÁRIOS DAS EMPRESAS -->
-<section class="cartao secao-resultados" aria-labelledby="titulo-horarios">
+{# ---------- 3. Filtros ---------- #}
+<section class="cartao" aria-labelledby="titulo-filtros">
   <div class="cabecalho-secao">
-    <div>
-      <p class="eyebrow">DATA E HORA</p>
-      <h2 id="titulo-horarios">Horários das empresas</h2>
+    <h2 id="titulo-filtros">Filtrar monitoramento</h2>
+  </div>
+
+  {# O #area-resultados leva o usuário direto aos resultados após consultar. #}
+  <form class="filtros" role="search" action="{{ url_for('consultar') }}#area-resultados" method="get">
+    <div class="campo">
+      <label for="empresa">Empresa</label>
+      <input id="empresa" name="empresa" type="text" maxlength="160" placeholder="Ex.: Mercado Boa Vista" value="{{ filtros.get('empresa', '') }}">
     </div>
 
+    <div class="campo">
+      <label for="equipamento">Equipamento</label>
+      <input id="equipamento" name="equipamento" type="text" maxlength="100" placeholder="Ex.: Freezer 01" value="{{ filtros.get('equipamento', '') }}">
+    </div>
+
+    <div class="campo">
+      <label for="tipo">Tipo</label>
+      <select id="tipo" name="tipo">
+        <option value="">Todos</option>
+        {% for t in tipos %}
+        <option value="{{ t }}" {{ 'selected' if filtros.get('tipo') == t }}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="acoes-formulario">
+      <button class="btn btn-primary" type="submit">Consultar</button>
+      {% if buscou %}
+      <a class="btn btn-secondary" href="{{ url_for('consultar') }}">Limpar filtros</a>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+{# ---------- 4. Resultados da busca ---------- #}
+{% if buscou %}
+<div id="area-resultados">
+
+  {% if empresas is not none %}
+  <section class="secao" aria-labelledby="titulo-empresas">
+    <div class="cabecalho-secao">
+      <h2 id="titulo-empresas">Empresas encontradas</h2>
+      <p class="ajuda">{{ empresas|length }} empresa(s) encontrada(s).</p>
+    </div>
+
+    {% if empresas %}
+    <div class="grade-empresas" id="lista-empresas" data-passo="{{ passo }}">
+      {% for empresa in empresas %}
+      <article class="empresa{% if loop.index > passo %} is-oculta{% endif %}" data-item>
+        {{ corpo_empresa(empresa) }}
+      </article>
+      {% endfor %}
+    </div>
+    {{ ver_mais('lista-empresas', empresas|length, passo) }}
+    {% else %}
+    <div class="sem-resultados">
+      <h3>Nenhuma empresa encontrada</h3>
+      <p>Não encontramos empresas com os filtros informados.</p>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if resultados is not none %}
+  <section class="cartao" aria-labelledby="titulo-resultados">
+    <div class="cabecalho-secao">
+      <h2 id="titulo-resultados">Equipamentos monitorados</h2>
+      <p class="ajuda">{{ resultados|length }} registro(s) encontrado(s).</p>
+    </div>
+
+    {% if resultados %}
+    <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Tabela de equipamentos monitorados">
+      <table class="tabela-cards tabela-ampla">
+        <caption class="sr-only">Equipamentos monitorados com leituras, média e última temperatura</caption>
+        <thead>
+          <tr>
+            <th scope="col">Empresa</th>
+            <th scope="col">Equipamento</th>
+            <th scope="col">Localização</th>
+            <th scope="col">Tipo</th>
+            <th scope="col" class="num">Leituras</th>
+            <th scope="col" class="num">Média</th>
+            <th scope="col" class="num">Última temperatura</th>
+            <th scope="col">Última leitura</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for item in resultados %}
+          {% set fora = item.ultima_temperatura is not none
+             and item.temp_min is not none
+             and item.temp_max is not none
+             and (item.ultima_temperatura < item.temp_min or item.ultima_temperatura > item.temp_max) %}
+          <tr>
+            <td data-label="Empresa">{{ item.empresa }}</td>
+            <th scope="row" data-label="Equipamento">{{ item.equipamento }}</th>
+            <td data-label="Localização">{{ item.localizacao }}</td>
+            <td data-label="Tipo">{{ item.tipo }}</td>
+            <td data-label="Leituras" class="num">{{ item.quantidade_leituras }}</td>
+            <td data-label="Média" class="num">{{ temp_c(item.temperatura_media) }}</td>
+            <td data-label="Última temperatura" class="num">
+              {% if item.ultima_temperatura is not none %}
+              <span class="status {{ 'status-fora' if fora else 'status-ok' }}">
+                {{ item.ultima_temperatura|temp }} °C
+                <span class="sr-only">{{ 'fora da faixa' if fora else 'dentro da faixa' }}</span>
+              </span>
+              {% else %}—{% endif %}
+            </td>
+            <td data-label="Última leitura">{{ item.ultima_leitura|data_br }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="legenda-status">
+      <span class="status status-ok">Dentro da faixa</span>
+      <span class="status status-fora">Fora da faixa</span>
+    </p>
+    {% else %}
+    <div class="sem-resultados">
+      <h3>Nenhum equipamento encontrado</h3>
+      <p>Não encontramos equipamentos com os filtros informados.</p>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+</div>
+{% endif %}
+
+{# ---------- 5. Empresas recomendadas ---------- #}
+{% if recomendadas %}
+<section class="secao" aria-labelledby="titulo-recomendadas">
+  <div class="cabecalho-secao">
+    <h2 id="titulo-recomendadas">Empresas recomendadas</h2>
+    <p class="ajuda">Maior percentual de leituras dentro da faixa ideal.</p>
+  </div>
+
+  <div class="grade-empresas">
+    {% for empresa in recomendadas %}
+    <a class="empresa empresa-recomendada" href="{{ url_for('consultar', empresa=empresa.empresa) }}#area-resultados"
+       aria-label="Ver monitoramento de {{ empresa.empresa }}">
+      <span class="selo">{{ icon("check") }} Recomendada</span>
+      {{ corpo_empresa(empresa) }}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{# ---------- 6. Horários das empresas (uma leitura por empresa) ---------- #}
+<section class="cartao" aria-labelledby="titulo-horarios">
+  <div class="cabecalho-secao">
+    <h2 id="titulo-horarios">Horários das empresas</h2>
     <p class="ajuda">{{ horarios_empresas|length }} empresa(s) com leitura registrada.</p>
   </div>
 
   {% if horarios_empresas %}
-  <div class="tabela-rolagem">
-    <table>
+  <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Tabela de horários das empresas">
+    <table class="tabela-cards">
+      <caption class="sr-only">Uma leitura por empresa</caption>
       <thead>
         <tr>
-          <th>Empresa</th>
-          <th>Equipamento</th>
-          <th>Temperatura</th>
-          <th>Data e horário</th>
+          <th scope="col">Empresa</th>
+          <th scope="col">Equipamento</th>
+          <th scope="col" class="num">Temperatura</th>
+          <th scope="col">Data e horário</th>
         </tr>
       </thead>
 
-      <tbody>
+      <tbody id="lista-horarios" data-passo="{{ passo }}">
         {% for item in horarios_empresas %}
-        <tr>
-          <td><strong>{{ item.empresa }}</strong></td>
-          <td>{{ item.equipamento }}</td>
-          <td>{{ item.temperatura|temp }} °C</td>
-          <td>{{ item.horario|data_br }}</td>
+        <tr{% if loop.index > passo %} class="is-oculta"{% endif %} data-item>
+          <th scope="row" data-label="Empresa">{{ item.empresa }}</th>
+          <td data-label="Equipamento">{{ item.equipamento }}</td>
+          <td data-label="Temperatura" class="num">{{ item.temperatura|temp }} °C</td>
+          <td data-label="Data e horário">{{ item.horario|data_br }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+  {{ ver_mais('lista-horarios', horarios_empresas|length, passo) }}
   {% else %}
   <div class="sem-resultados">
     <h3>Nenhum horário encontrado</h3>
@@ -102,194 +295,4 @@
   </div>
   {% endif %}
 </section>
-
-<!-- FILTROS DE CONSULTA -->
-<section class="cartao" aria-labelledby="titulo-filtros">
-  <div class="cabecalho-secao">
-    <div>
-      <p class="eyebrow">CONSULTA</p>
-      <h2 id="titulo-filtros">Filtrar monitoramento</h2>
-    </div>
-  </div>
-
-  <form action="{{ url_for('consultar') }}" method="get">
-    <div class="grade-campos">
-      <div class="campo">
-        <label for="empresa">Empresa</label>
-        <input id="empresa" name="empresa" type="text" maxlength="160" placeholder="Ex.: Mercado Boa Vista" value="{{ filtros.get('empresa', '') }}">
-      </div>
-
-      <div class="campo">
-        <label for="equipamento">Equipamento</label>
-        <input id="equipamento" name="equipamento" type="text" maxlength="100" placeholder="Ex.: Freezer 01" value="{{ filtros.get('equipamento', '') }}">
-      </div>
-
-      <div class="campo">
-        <label for="tipo">Tipo</label>
-        <input id="tipo" name="tipo" type="text" maxlength="80" placeholder="Ex.: Freezer" value="{{ filtros.get('tipo', '') }}">
-      </div>
-    </div>
-
-    <div class="acoes-formulario">
-      <button class="btn btn-primary" type="submit">Consultar</button>
-      <a class="btn btn-secondary" href="{{ url_for('consultar') }}">Limpar filtros</a>
-    </div>
-  </form>
-</section>
-
-<!-- EMPRESAS ENCONTRADAS -->
-{% if buscou and empresas is not none %}
-<section class="secao-empresas" aria-labelledby="titulo-empresas">
-  <div class="cabecalho-secao">
-    <div>
-      <p class="eyebrow">EMPRESAS</p>
-      <h2 id="titulo-empresas">Empresas encontradas</h2>
-    </div>
-
-    <p class="ajuda">{{ empresas|length }} empresa(s) encontrada(s).</p>
-  </div>
-
-  {% if empresas %}
-  <div class="grade-empresas">
-    {% for empresa in empresas %}
-    <article class="empresa">
-      <h3>{{ empresa.empresa }}</h3>
-
-      <div class="media-empresa">
-        <span class="rotulo-resumo">Temperatura média</span>
-        <strong>
-          {% if empresa.temperatura_media is not none %}
-            {{ empresa.temperatura_media|temp }} °C
-          {% else %}
-            —
-          {% endif %}
-        </strong>
-      </div>
-
-      <div class="dados-empresa">
-        <span>{{ empresa.quantidade_equipamentos }} equipamento(s)</span>
-        <span>{{ empresa.quantidade_leituras }} leitura(s)</span>
-        <span>Conformidade: {{ empresa.conformidade|percentual }}%</span>
-      </div>
-    </article>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="sem-resultados">
-    <h3>Nenhuma empresa encontrada</h3>
-    <p>Não encontramos empresas com os filtros informados.</p>
-  </div>
-  {% endif %}
-</section>
-{% endif %}
-
-<!-- RESULTADOS DOS EQUIPAMENTOS -->
-{% if buscou and resultados is not none %}
-<section class="cartao secao-resultados" aria-labelledby="titulo-resultados">
-  <div class="cabecalho-secao">
-    <div>
-      <p class="eyebrow">RESULTADOS</p>
-      <h2 id="titulo-resultados">Equipamentos monitorados</h2>
-    </div>
-
-    <p class="ajuda">{{ resultados|length }} registro(s) encontrado(s).</p>
-  </div>
-
-  {% if resultados %}
-  <div class="tabela-rolagem">
-    <table class="tabela-ampla">
-      <thead>
-        <tr>
-          <th>Empresa</th>
-          <th>Equipamento</th>
-          <th>Localização</th>
-          <th>Tipo</th>
-          <th>Leituras</th>
-          <th>Média</th>
-          <th>Última temperatura</th>
-          <th>Última leitura</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {% for item in resultados %}
-        {% set fora = (
-          item.ultima_temperatura is not none
-          and (
-            item.ultima_temperatura < item.temp_min
-            or item.ultima_temperatura > item.temp_max
-          )
-        ) %}
-
-        <tr>
-          <td>{{ item.empresa }}</td>
-          <td><strong>{{ item.equipamento }}</strong></td>
-          <td>{{ item.localizacao }}</td>
-          <td>{{ item.tipo }}</td>
-          <td>{{ item.quantidade_leituras }}</td>
-          <td>
-            {% if item.temperatura_media is not none %}
-              {{ item.temperatura_media|temp }} °C
-            {% else %}
-              —
-            {% endif %}
-          </td>
-          <td>
-            {% if item.ultima_temperatura is not none %}
-              <span class="status {{ 'status-fora' if fora else 'status-ok' }}">
-                {{ item.ultima_temperatura|temp }} °C
-              </span>
-            {% else %}
-              —
-            {% endif %}
-          </td>
-          <td>{{ item.ultima_leitura|data_br }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-  <div class="sem-resultados">
-    <h3>Nenhum equipamento encontrado</h3>
-    <p>Não encontramos equipamentos com os filtros informados.</p>
-  </div>
-  {% endif %}
-</section>
-{% endif %}
-
-<!-- EMPRESAS RECOMENDADAS -->
-{% if recomendadas %}
-<section class="secao-empresas" aria-labelledby="titulo-recomendadas">
-  <div class="cabecalho-secao">
-    <div>
-      <p class="eyebrow">RECOMENDADAS</p>
-      <h2 id="titulo-recomendadas">Empresas recomendadas</h2>
-    </div>
-
-    <p class="ajuda">Empresas com maior percentual de leituras dentro da faixa ideal.</p>
-  </div>
-
-  <div class="grade-empresas">
-    {% for empresa in recomendadas %}
-    <a class="empresa empresa-recomendada" href="{{ url_for('consultar', empresa=empresa.empresa) }}">
-      <span class="selo">★ Recomendada</span>
-
-      <h3>{{ empresa.empresa }}</h3>
-
-      <div class="media-empresa">
-        <span class="rotulo-resumo">Temperatura média</span>
-        <strong>{{ empresa.temperatura_media|temp }} °C</strong>
-      </div>
-
-      <div class="dados-empresa">
-        <span>{{ empresa.quantidade_equipamentos }} equipamento(s)</span>
-        <span>{{ empresa.quantidade_leituras }} leitura(s)</span>
-        <span>Conformidade: {{ empresa.conformidade|percentual }}%</span>
-      </div>
-    </a>
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
 {% endblock %}

@@ -1,26 +1,24 @@
 /* ==========================================================================
    TempControl — consulta.css
-   Somente estilos específicos da página Monitoramento. Botões, campos de
-   formulário e alertas ficam em base.css.
+   Estilos específicos da página Monitoramento.
    ========================================================================== */
 
 .pagina-interna {
-    padding-block: 48px 90px;
+    padding-block: clamp(40px, 5vw, 64px) 96px;
 }
 
 /* ---------- Introdução ---------- */
 .pagina-interna h1 {
-    margin-top: 15px;
-    font-size: clamp(34px, 5vw, 50px);
-    line-height: 1.1;
-    letter-spacing: -2px;
+    font-size: clamp(34px, 5vw, 52px);
+    line-height: 1.06;
+    letter-spacing: -0.04em;
 }
 
 .introducao {
-    max-width: 620px;
-    margin-top: 15px;
-    font-size: 15px;
-    line-height: 1.7;
+    max-width: 640px;
+    margin-top: 16px;
+    font-size: 17px;
+    line-height: 1.75;
 }
 
 .alert-topo {
@@ -32,7 +30,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    margin-top: 35px;
+    margin-top: 36px;
 }
 
 .cartao-resumo {
@@ -45,28 +43,32 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     color: var(--muted);
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .cartao-resumo strong {
     color: var(--dark);
     font-family: var(--font-heading);
-    font-size: 28px;
+    font-size: 30px;
     line-height: 1.2;
-    letter-spacing: -1px;
+    letter-spacing: -0.04em;
 }
 
 .rotulo-resumo {
-    color: var(--green);
-    font-size: 11px;
-    font-weight: 800;
+    color: var(--green-text);
+    font-size: 12px;
+    font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
 }
 
-/* ---------- Cartões e cabeçalhos de seção ---------- */
+/* ---------- Blocos e cabeçalhos de seção ---------- */
+.cartao,
+.secao {
+    margin-top: 32px;
+}
+
 .cartao {
-    margin-top: 24px;
     padding: 32px;
     background: var(--white);
     border: 1px solid var(--border);
@@ -76,55 +78,56 @@
 
 .cabecalho-secao {
     display: flex;
-    align-items: flex-end;
+    align-items: baseline;
     justify-content: space-between;
     gap: 20px;
     margin-bottom: 22px;
 }
 
 .cabecalho-secao h2 {
-    margin-top: 6px;
-    font-size: 20px;
-    letter-spacing: -0.5px;
+    font-size: 22px;
+    letter-spacing: -0.025em;
 }
 
 .ajuda {
     max-width: 340px;
     color: var(--muted);
-    font-size: 13px;
+    font-size: 14px;
     text-align: right;
 }
 
-/* ---------- Filtros ---------- */
-.grade-campos {
+/* ---------- Filtros (campos + ações na mesma linha) ---------- */
+.filtros {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    align-items: end;
     gap: 0 16px;
 }
 
 .acoes-formulario {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-top: 8px;
-}
-
-.acoes-formulario .btn {
-    min-width: 160px;
+    gap: 12px;
+    margin-bottom: 18px; /* alinha com a base dos campos */
 }
 
 /* ---------- Tabelas ---------- */
 .tabela-rolagem {
     overflow-x: auto;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
+}
+
+.tabela-rolagem:focus-visible {
+    outline: 3px solid #65bca0;
+    outline-offset: 2px;
 }
 
 table {
     width: 100%;
     min-width: 640px;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 15px;
     text-align: left;
 }
 
@@ -132,30 +135,56 @@ table {
     min-width: 980px;
 }
 
-th {
+th,
+td {
     padding: 14px 16px;
+    text-align: left;
+}
+
+th {
     background: var(--green-light);
     color: var(--dark);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
 }
 
-td {
-    padding: 14px 16px;
+td,
+tbody th {
     border-top: 1px solid var(--border);
+}
+
+tbody th {
+    background: transparent;
+    font-size: 15px;
+}
+
+.num,
+thead th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 tbody tr:hover {
     background: var(--background);
 }
 
+/* Status: cor + forma (círculo = dentro, triângulo = fora) + texto para leitor de tela */
 .status {
-    display: inline-block;
-    padding: 2px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 11px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     white-space: nowrap;
+}
+
+.status::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: currentColor;
 }
 
 .status-ok {
@@ -163,9 +192,24 @@ tbody tr:hover {
     color: var(--green-dark);
 }
 
+.status-ok::before {
+    border-radius: 50%;
+}
+
 .status-fora {
     background: var(--danger-bg);
     color: var(--danger);
+}
+
+.status-fora::before {
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.legenda-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
 }
 
 .sem-resultados {
@@ -174,19 +218,15 @@ tbody tr:hover {
 }
 
 .sem-resultados h3 {
-    font-size: 17px;
+    font-size: 18px;
 }
 
 .sem-resultados p {
     margin-top: 6px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
-/* ---------- Empresas ---------- */
-.secao-empresas {
-    margin-top: 40px;
-}
-
+/* ---------- Cartões de empresa ---------- */
 .grade-empresas {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -204,7 +244,7 @@ tbody tr:hover {
 }
 
 .empresa h3 {
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.3;
 }
 
@@ -216,27 +256,43 @@ tbody tr:hover {
 .media-empresa strong {
     color: var(--dark);
     font-family: var(--font-heading);
-    font-size: 26px;
-    letter-spacing: -1px;
+    font-size: 28px;
+    letter-spacing: -0.04em;
 }
 
 .dados-empresa {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     padding-top: 14px;
     border-top: 1px solid var(--border);
     color: var(--muted);
-    font-size: 12px;
+    font-size: 14px;
+}
+
+.meter {
+    height: 6px;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--border);
+}
+
+.meter span {
+    display: block;
+    height: 100%;
+    max-width: 100%;
+    border-radius: 6px;
+    background: var(--green);
 }
 
 .empresa-recomendada {
     border-color: var(--success-border);
     background: linear-gradient(180deg, var(--green-light) 0%, var(--white) 55%);
     transition:
-        border-color 0.2s ease,
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+        border-color 0.25s ease,
+        transform 0.25s var(--ease),
+        box-shadow 0.25s ease;
 }
 
 .empresa-recomendada:hover {
@@ -245,27 +301,127 @@ tbody tr:hover {
     box-shadow: 0 12px 30px rgba(7, 107, 80, 0.12);
 }
 
+.empresa-recomendada:focus-visible {
+    outline: 3px solid #65bca0;
+    outline-offset: 2px;
+}
+
 .selo {
     align-self: flex-start;
-    padding: 3px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px 4px 8px;
     border-radius: 20px;
-    background: var(--green);
+    background: var(--green-600);
     color: var(--white);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.selo .icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* ---------- "Ver mais" (exibição gradual) ----------
+   Sem JavaScript tudo continua visível e o botão não aparece. */
+.ver-mais {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.js .ver-mais {
+    display: flex;
+}
+
+.ver-mais__status {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.ver-mais .btn {
+    min-width: 160px;
+}
+
+.ver-mais .btn[hidden] {
+    display: none;
+}
+
+.js .is-oculta {
+    display: none !important;
 }
 
 /* ---------- Responsivo ---------- */
+@media (max-width: 1000px) {
+    .filtros {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .acoes-formulario {
+        grid-column: 1 / -1;
+        margin-bottom: 0;
+    }
+}
+
 @media (max-width: 900px) {
     .grade-resumo,
     .grade-empresas {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .grade-campos {
+    .filtros {
         grid-template-columns: 1fr;
-        gap: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .tabela-cards,
+    .tabela-cards.tabela-ampla {
+        min-width: 0;
+    }
+
+    .tabela-cards,
+    .tabela-cards tbody,
+    .tabela-cards tr,
+    .tabela-cards td,
+    .tabela-cards tbody th {
+        display: block;
+    }
+
+    .tabela-cards thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .tabela-cards tr {
+        padding: 12px 0;
+        border-top: 6px solid var(--background);
+    }
+
+    .tabela-cards td,
+    .tabela-cards tbody th {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 6px 16px;
+        border: 0;
+        text-align: right;
+    }
+
+    .tabela-cards td::before,
+    .tabela-cards tbody th::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-weight: 700;
+        text-align: left;
     }
 }
 
@@ -281,6 +437,7 @@ tbody tr:hover {
     .cabecalho-secao {
         flex-direction: column;
         align-items: flex-start;
+        gap: 6px;
     }
 
     .ajuda {
@@ -298,7 +455,8 @@ tbody tr:hover {
         align-items: stretch;
     }
 
-    .acoes-formulario .btn {
+    .acoes-formulario .btn,
+    .ver-mais .btn {
         width: 100%;
     }
 }

@@ -13,14 +13,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}TempControl | Monitoramento inteligente{% endblock %}</title>
-  <meta name="description" content="{% block description %}Monitoramento inteligente de temperatura para a indústria de alimentos.{% endblock %}">
+  <meta name="description" content="{% block description %}Monitoramento inteligente de temperatura para a indústria de alimentos: leituras contínuas, alertas e histórico para rastreabilidade.{% endblock %}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='img/icon-192.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <meta name="theme-color" content="#087a58">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="TempControl">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.description() }}">
 
+  <script>document.documentElement.classList.add('js');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@700;800&display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
   {% block css %}{% endblock %}
   <script src="{{ url_for('static', filename='menu.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='forms.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='site.js') }}" defer></script>
+  {% block js %}{% endblock %}
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -28,28 +41,30 @@
   <header class="site-header">
     <div class="container site-header__inner">
       <a class="site-header__logo" href="{{ url_for('inicio') }}" aria-label="TempControl — início">
-        <img src="{{ url_for('static', filename='img/TempControl_logo.png') }}" alt="TempControl">
+        <img src="{{ url_for('static', filename='img/TempControl_logo.png') }}" alt="TempControl" width="140" height="48">
       </a>
 
-      {# Orientação pelo conteúdo da página inicial (ids das seções) #}
-      <nav class="site-nav" aria-label="Seções do site">
+      {# Seções da página inicial: só aparecem na home #}
+      {% if current == 'inicio' %}
+      <nav class="site-nav" aria-label="Seções da página inicial">
         {{ section_link('desafio', 'Desafio') }}
         {{ section_link('solucao', 'Solução') }}
         {{ section_link('funcionamento', 'Como funciona') }}
         {{ section_link('beneficios', 'Benefícios') }}
         {{ section_link('aplicacoes', 'Aplicações') }}
       </nav>
+      {% endif %}
 
       <div class="site-header__actions">
         <a class="btn btn-primary" href="{{ url_for('contato') }}">Fale conosco</a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu-paginas" aria-label="Abrir menu">
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu-paginas">
           <span class="menu-toggle__bars" aria-hidden="true"></span>
           <span class="menu-toggle__label">Menu</span>
         </button>
       </div>
     </div>
 
-    {# Menu hambúrguer: páginas do site (em telas pequenas inclui também as seções) #}
+    {# Menu hambúrguer: páginas do site (na home, em telas pequenas, inclui as seções) #}
     <div class="menu-panel" id="menu-paginas" hidden>
       <div class="container menu-panel__inner">
         <nav class="menu-group" aria-label="Páginas do site">
@@ -62,6 +77,7 @@
           </div>
         </nav>
 
+        {% if current == 'inicio' %}
         <nav class="menu-group menu-group--secoes" aria-label="Seções da página inicial">
           <p class="menu-group__title">Na página inicial</p>
           <div class="menu-group__list">
@@ -72,6 +88,7 @@
             {{ section_link('aplicacoes', 'Aplicações') }}
           </div>
         </nav>
+        {% endif %}
       </div>
     </div>
   </header>
@@ -83,21 +100,30 @@
   <footer class="site-footer">
     <div class="container site-footer__top">
       <div class="site-footer__brand">
-        <img src="{{ url_for('static', filename='img/TempControl_logo.png') }}" alt="TempControl">
+        <img src="{{ url_for('static', filename='img/TempControl_logo.png') }}" alt="TempControl" width="120" height="41" loading="lazy">
         <p>Monitoramento inteligente de temperatura para a indústria de alimentos.</p>
       </div>
 
-      <nav class="site-footer__links" aria-label="Links do rodapé">
-        {{ page_link(current, 'inicio', 'Início') }}
-        {{ page_link(current, 'clientes', 'Clientes') }}
-        {{ page_link(current, 'consultar', 'Monitoramento') }}
-        {{ page_link(current, 'contato', 'Contato') }}
-        {{ section_link('desafio', 'Desafio') }}
-        {{ section_link('solucao', 'Solução') }}
-        {{ section_link('funcionamento', 'Como funciona') }}
-        {{ section_link('beneficios', 'Benefícios') }}
-        {{ section_link('aplicacoes', 'Aplicações') }}
-      </nav>
+      <div class="site-footer__col">
+        <h2>Páginas</h2>
+        <nav aria-label="Páginas do site (rodapé)">
+          {{ page_link(current, 'inicio', 'Início') }}
+          {{ page_link(current, 'clientes', 'Clientes') }}
+          {{ page_link(current, 'consultar', 'Monitoramento') }}
+          {{ page_link(current, 'contato', 'Contato') }}
+        </nav>
+      </div>
+
+      <div class="site-footer__col">
+        <h2>A solução</h2>
+        <nav aria-label="Seções da página inicial (rodapé)">
+          {{ section_link('desafio', 'Desafio') }}
+          {{ section_link('solucao', 'Solução') }}
+          {{ section_link('funcionamento', 'Como funciona') }}
+          {{ section_link('beneficios', 'Benefícios') }}
+          {{ section_link('aplicacoes', 'Aplicações') }}
+        </nav>
+      </div>
     </div>
 
     <div class="container site-footer__bottom">
